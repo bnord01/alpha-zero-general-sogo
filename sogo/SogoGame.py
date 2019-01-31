@@ -4,7 +4,7 @@ sys.path.append('..')
 from Game import Game
 
 import numpy as np
-from tf_sogo import evaluate
+from sogo.tf_sogo import evaluate
 
 
 """
@@ -34,11 +34,12 @@ class SogoGame(Game):
             x = self.action_x(action)
             y = self.action_y(action)
             z = self.action_z(board, x, y)
-            new_board[x, y, z,(player+1)/2] = 1
+            pl = int((player+1)/2)
+            new_board[x, y, z,pl] = 1
         return (new_board, -player)
 
     def getValidMoves(self, board, player):
-        return np.array([self.valid_action(board,i) for i in 0:self.getActionSize()])        
+        return np.array([self.valid_action(board,i) for i in range(0,self.getActionSize())])        
 
     def getGameEnded(self, board, player):
         if evaluate(board[np.newaxis, :, :, :, 0]):
@@ -46,8 +47,8 @@ class SogoGame(Game):
         if evaluate(board[np.newaxis, :, :, :, 1]):
             return -player
         if np.sum(board) == 64:
-            return 0
-        return 1e-4
+            return 1e-4
+        return 0
 
     def getCanonicalForm(self, board, player):
         if player == 1:
@@ -81,8 +82,10 @@ class SogoGame(Game):
 
     def valid_action(self, state: np.ndarray, action: int) -> int:
         'Returns whether an action is valid in the given state or leads to the opponent winning.'
-        return 1 if 
-                action == 16 or \
+        return 1 if action == 16 or \
                 not state[self.action_x(action), self.action_y(action), 3, 0] and \
-                not state[self.action_x(action), self.action_y(action), 3, 1] 
+                not state[self.action_x(action), self.action_y(action), 3, 1] \
             else 0        
+
+def display(board):
+    print(board[:,:,:,0]+board[:,:,:,1]*8)
