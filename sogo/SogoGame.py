@@ -17,7 +17,7 @@ class SogoGame(Game):
 
     def getInitBoard(self):        
         'Returns the initial state of the game.'
-        return np.zeros((4, 4, 4), dtype=np.int32)
+        return np.zeros((self.n, self.n, self.n, 2), dtype=np.int32)
 
     def getBoardSize(self):
         # (a,b) tuple
@@ -29,16 +29,16 @@ class SogoGame(Game):
 
     def getNextState(self, board, player, action):
         'Performs a valid action and returns the resulting state.'
-        new_state = np.copy(state)
-        player = state[0, 0, 0, 2]
+        new_board = np.copy(board)
         if action < self.getActionSize():
             x = self.action_x(action)
             y = self.action_y(action)
-            z = self.action_z(state, x, y)
-            new_state[x, y, z] = player
-        return (new_state, -player)
+            z = self.action_z(board, x, y)
+            new_board[x, y, z,(player+1)/2] = 1
+        return (new_board, -player)
 
     def getValidMoves(self, board, player):
+        pass
         # return a fixed size binary vector
         valids = [0]*self.getActionSize()
         b = Board(self.n)
@@ -52,6 +52,7 @@ class SogoGame(Game):
         return np.array(valids)
 
     def getGameEnded(self, board, player):
+        pass
         # return 0 if not ended, 1 if player 1 won, -1 if player 1 lost
         # player = 1
         b = Board(self.n)
@@ -67,10 +68,15 @@ class SogoGame(Game):
         return 1e-4
 
     def getCanonicalForm(self, board, player):
-        # return state if player==1, else return -state if player==-1
-        return player*board
+        if player == 1:
+            return board
+        else:
+            new_board = board.copy()
+            new_board[:,:,:,0],new_board[:,:,:,1] = new_board[:,:,:,1],new_board[:,:,:,0].copy()            
+            return new_board
 
     def getSymmetries(self, board, pi):
+        pass
         # mirror, rotational
         assert(len(pi) == self.n**2+1)  # 1 for pass
         pi_board = np.reshape(pi[:-1], (self.n, self.n))
@@ -86,7 +92,7 @@ class SogoGame(Game):
                 l += [(newB, list(newPi.ravel()) + [pi[-1]])]
         return l
 
-    def stringRepresentation(self, board):
+    def stringRepresentation(self, board):        
         # 8x8 numpy array (canonical board)
         return board.tostring()
 
@@ -104,12 +110,6 @@ class SogoGame(Game):
         while state[x, y, z, 0] or state[x, y, z, 1]:
             z += 1
         return z
-
-    def initial_state(self) -> np.ndarray:
-
-    def num_actions(self) -> int:
-        'Returns the number of valid actions.'
-        return 17
 
     def valid_action(self, state: np.ndarray, action: int) -> bool:
         'Returns whether an action is valid in the given state or leads to the opponent winning.'
@@ -135,7 +135,7 @@ class SogoGame(Game):
 
     def terminal_state(self, state: np.ndarray) -> bool:
         'Returns whether a state is terminal.'
-        return np.sum(state[..., 0:2]) == 64 or not self.evaluate_state(state) == 0
+        return np.sum(state) == 64 or not self.evaluate_state(state) == 0
 
     def evaluate_state(self, state: np.ndarray) -> int:
         'Returns -1 iff the current player won the game, 1 if the other player won the game or 0 otherwise.'        
