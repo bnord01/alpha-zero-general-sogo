@@ -1,17 +1,17 @@
 from Coach import Coach
 #from othello.OthelloGame import OthelloGame as Game
 #from othello.tensorflow.NNet import NNetWrapper as nn
-from tictactoe.TicTacToeGame import TicTacToeGame as Game
-from tictactoe.keras.NNet import NNetWrapper as nn
+from sogo.SogoGame import SogoGame as Game
+from sogo.keras.NNet import NNetWrapper as nn
 from utils import *
 
 args = dotdict({
     'numIters': 10,
-    'numEps': 10,
+    'numEps': 100,
     'tempThreshold': 1,
     'updateThreshold': 0.6,
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 10,
+    'numMCTSSims': 15,
     'arenaCompare': 40,
     'cpuct': 1,
 
@@ -23,7 +23,7 @@ args = dotdict({
 })
 
 if __name__=="__main__":
-    g = Game(6)
+    g = Game(4)
     nnet = nn(g)
 
     if args.load_model:

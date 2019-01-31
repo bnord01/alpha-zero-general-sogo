@@ -12,7 +12,7 @@ Game class implementation for the game of Sogo.
 
 """
 class SogoGame(Game):
-    def __init__(self, n=3):
+    def __init__(self, n=4):
         self.n = n
 
     def getInitBoard(self):        
@@ -25,17 +25,16 @@ class SogoGame(Game):
 
     def getActionSize(self):
         # return number of actions
-        return self.n*self.n + 1
+        return self.n*self.n
 
     def getNextState(self, board, player, action):
         'Performs a valid action and returns the resulting state.'
         new_board = np.copy(board)
-        if action < self.getActionSize():
-            x = self.action_x(action)
-            y = self.action_y(action)
-            z = self.action_z(board, x, y)
-            pl = int((player+1)/2)
-            new_board[x, y, z,pl] = 1
+        x = self.action_x(action)
+        y = self.action_y(action)
+        z = self.action_z(board, x, y)            
+        pl = int((player+1)/2)
+        new_board[x, y, z, pl] = 1
         return (new_board, -player)
 
     def getValidMoves(self, board, player):
@@ -46,7 +45,7 @@ class SogoGame(Game):
             return player
         if evaluate(board[np.newaxis, :, :, :, 1]):
             return -player
-        if np.sum(board) == 64:
+        if np.sum(board) == self.n ** 3:
             return 1e-4
         return 0
 
@@ -62,19 +61,16 @@ class SogoGame(Game):
         return [(board,pi)]
 
     def stringRepresentation(self, board):        
-        # 8x8 numpy array (canonical board)
+        # 8x8 numpy array (canonical board)        
         return board.tostring()
 
-    @staticmethod
-    def action_x(num: int):
-        return num % 4
+    def action_x(self, num: int):
+        return num % self.n
 
-    @staticmethod
-    def action_y(num: int):
-        return num // 4
+    def action_y(self, num: int):
+        return num // self.n 
 
-    @staticmethod
-    def action_z(state: np.ndarray, x: int, y: int):
+    def action_z(self, state: np.ndarray, x: int, y: int):
         z = 0
         while state[x, y, z, 0] or state[x, y, z, 1]:
             z += 1
@@ -82,9 +78,9 @@ class SogoGame(Game):
 
     def valid_action(self, state: np.ndarray, action: int) -> int:
         'Returns whether an action is valid in the given state or leads to the opponent winning.'
-        return 1 if action == 16 or \
-                not state[self.action_x(action), self.action_y(action), 3, 0] and \
-                not state[self.action_x(action), self.action_y(action), 3, 1] \
+        return 1 if \
+                not state[self.action_x(action), self.action_y(action), self.n-1, 0] and \
+                not state[self.action_x(action), self.action_y(action), self.n-1, 1] \
             else 0        
 
 def display(board):
