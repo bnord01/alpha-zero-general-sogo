@@ -58,7 +58,17 @@ class SogoGame(Game):
             return new_board
 
     def getSymmetries(self, board, pi):
-        return [(board,pi)]
+        pi_board = np.reshape(pi, (self.n, self.n), order='F')
+        l = []
+        for i in range(1, 5):
+            for j in [True, False]:
+                newB = np.rot90(board, i)
+                newPi = np.rot90(pi_board, i)
+                if j:
+                    newB = np.fliplr(newB)
+                    newPi = np.fliplr(newPi)
+                l += [(newB, np.ravel(newPi, order='F'))]
+        return l
 
     def stringRepresentation(self, board):        
         # 8x8 numpy array (canonical board)        
