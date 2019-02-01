@@ -7,12 +7,12 @@ from utils import *
 
 args = dotdict({
     'numIters': 100,
-    'numEps': 100,
+    'numEps': 200,
     'tempThreshold': 10,
     'updateThreshold': 0.51,
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 15,
-    'arenaCompare': 40,
+    'numMCTSSims': 25,
+    'arenaCompare': 50,
     'cpuct': 1,
 
     'checkpoint': './temp/',
