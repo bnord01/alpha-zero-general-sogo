@@ -84,4 +84,31 @@ class SogoGame(Game):
             else 0        
 
 def display(board):
-    print(board[:,:,:,0]+board[:,:,:,1]*8)
+    (nx,ny,nz,_) = board.shape
+    for z in range(nz-1,-1,-1):
+        print("z"+str(z)+"+", end="")
+        for _ in range(nx):
+            print ("--", end="")
+        print("+")
+        for y in range(ny-1,-1,-1):
+            print(y, "|",end="")    # print the row #
+            for x in range(nx):
+                if board[x,y,z,0]:
+                    print("X ", end="")
+                elif board[x,y,z,1]:
+                    print("O ", end="")
+                else:
+                    if x==nx:
+                        print("-",end="")
+                    else:
+                        print("- ",end="")
+            print("|")
+        print("z"+str(z)+"+", end="")
+        for _ in range(nx):
+            print ("--", end="")
+        print("+")
+        print("   ", end="")
+        for x in range(nx):
+            print (x,"", end="")
+        print("")        
+    print("--")
