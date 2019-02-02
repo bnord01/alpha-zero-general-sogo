@@ -7,17 +7,18 @@ from utils import *
 
 args = dotdict({
     'numIters': 100,
-    'numEps': 200,
-    'tempThreshold': 10,
-    'updateThreshold': 0.51,
+    'numEps': 1000,
+    'tempThreshold': 15,
+    'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
-    'numMCTSSims': 25,
+    'numMCTSSims': 30,
     'arenaCompare': 50,
     'cpuct': 1,
 
+    'save_all_examples': False,
     'checkpoint': './temp/',
     'load_model': True,
-    'load_folder_file': ('./save/','checkpoint_25.pth.tar'),
+    'load_folder_file': ('./saves/','checkpoint_12.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
 })
