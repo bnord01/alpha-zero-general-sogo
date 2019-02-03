@@ -7,7 +7,7 @@ from utils import *
 
 args = dotdict({
     'numIters': 100,
-    'numEps': 1000,
+    'numEps': 500,
     'tempThreshold': 15,
     'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
@@ -18,7 +18,7 @@ args = dotdict({
     'save_all_examples': False,
     'checkpoint': './temp/',
     'load_model': True,
-    'load_folder_file': ('./saves/','checkpoint_12.pth.tar'),
+    'load_folder_file': ('./saves/','latest'),
     'numItersForTrainExamplesHistory': 20,
 
 })
@@ -27,8 +27,8 @@ if __name__=="__main__":
     g = Game(4)
     nnet = nn(g)
 
-    if args.load_model:
-        nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
+    #if args.load_model:
+    #    nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
 
     c = Coach(g, nnet, args)
     if args.load_model:

@@ -12,8 +12,9 @@ class SogoNNet():
         self.action_size = game.getActionSize()
         self.args = args
 
-        num_4x1 = 32
-        num_4x4 = 64
+        num_4x1 = 128
+        num_4x4 = 128
+        num_4x4x4 = 512
 
         self.input_boards = Input(shape=(self.board_x, self.board_y, self.board_z, 2))
         t = self.input_boards
@@ -26,17 +27,22 @@ class SogoNNet():
         t141 = Flatten()(Conv3D(num_4x4, (self.board_x, 1, self.board_z), padding='valid')(t))
         t411 = Flatten()(Conv3D(num_4x4, (1, self.board_y, self.board_z), padding='valid')(t))
 
-        t = Concatenate()([t144, t414, t441, t114, t141, t411, Flatten()(t)])
+        t4   = Activation('relu')(BatchNormalization()(Dense(num_4x4x4)(Flatten()(t))))
+        t4   = Activation('relu')(BatchNormalization()(Dense(num_4x4x4)(t4)))
+
+        t = Concatenate()([t144, t414, t441, t114, t141, t411, Flatten()(t), t4])
         t = BatchNormalization()(t)
         t = Activation('relu')(t)
 
         t = Dense(2048)(t)
         t = BatchNormalization()(t)
         t = Activation('relu')(t)
+        t = Dropout(args.dropout)(t)
 
         t = Dense(512)(t)
         t = BatchNormalization()(t)
         t = Activation('relu')(t)
+        t = Dropout(args.dropout)(t)
 
         self.pi = Dense(self.action_size, activation='softmax', name='pi')(t)   
         self.v = Dense(1, activation='tanh', name='v')(t)
