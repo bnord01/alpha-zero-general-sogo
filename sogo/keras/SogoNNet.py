@@ -139,7 +139,6 @@ class SogoNNet():
         branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
         x = layers.concatenate(
             [branch1x1, branch4x4, branch3x3dbl, branch_pool],
-            axis=channel_axis,
             name='mixed1')
 
         
@@ -160,15 +159,14 @@ class SogoNNet():
         branch_pool = conv2d_bn(branch_pool, 64, 1, 1)
         x = layers.concatenate(
             [branch1x1, branch4x4, branch3x3dbl, branch_pool],
-            axis=channel_axis,
-            name='mixed1')
+            name='mixed2')
 
         x = Flatten()(x)
-        x = Dense(2048)(x)
+        x = Dense(2048, name='dense1')(x)
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
         
-        x = Dense(1024)(x)
+        x = Dense(1024, name='dense2')(x)
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
 
