@@ -98,6 +98,8 @@ class SogoNNet():
         self.input_boards = Input(shape=(self.board_x, self.board_y, self.board_z, 2))
         x = self.input_boards
 
+        filters1 = 48
+
         # Upsampling to 4 x 4 x 4 x filters1
         branch1 = conv3d_bn(x, filters1, 1, 1, 1)
 
