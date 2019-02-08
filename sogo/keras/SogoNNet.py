@@ -127,7 +127,7 @@ class SogoNNet():
         branch1x1 = conv2d_bn(x, 64, 1, 1)
 
         branch4x4 = conv2d_bn(x, 48, 1, 1)
-        branch4x4 = conv2d_bn(branch5x5, 64, 4, 4)
+        branch4x4 = conv2d_bn(branch4x4, 64, 4, 4)
 
         branch3x3dbl = conv2d_bn(x, 64, 1, 1)
         branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
@@ -147,8 +147,8 @@ class SogoNNet():
         branch1x1 = conv2d_bn(x, 64, 1, 1)
 
         branch4x4 = conv2d_bn(x, 48, 1, 1)
-        branch4x4 = conv2d_bn(branch5x5, 64, 1, 4)
-        branch4x4 = conv2d_bn(branch5x5, 128, 4, 1)
+        branch4x4 = conv2d_bn(branch4x4, 64, 1, 4)
+        branch4x4 = conv2d_bn(branch4x4, 128, 4, 1)
 
         branch3x3dbl = conv2d_bn(x, 64, 1, 1)
         branch3x3dbl = conv2d_bn(branch3x3dbl, 96, 3, 3)
