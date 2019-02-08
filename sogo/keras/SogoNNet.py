@@ -122,7 +122,7 @@ class SogoNNet():
             name='mixed0')
 
         # 4 x 4 x filters1*20
-        x = layers.reshape(x,(4,4,-1))
+        x = Reshape((4,4,-1))(x)
 
         branch1x1 = conv2d_bn(x, 64, 1, 1)
 
