@@ -28,7 +28,7 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
-        for i in range(self.args.numMCTSSims):
+        for _ in range(self.args.numMCTSSims):
             self.search(canonicalBoard)
 
         s = self.game.stringRepresentation(canonicalBoard)
@@ -95,22 +95,9 @@ class MCTS():
             return -v
 
         valids = self.Vs[s]
-        cur_best = -float('inf')
-        best_act = -1
 
-        # pick the action with the highest upper confidence bound
-        for a in range(self.game.getActionSize()):
-            if valids[a]:
-                if (s,a) in self.Qsa:
-                    u = self.Qsa[(s,a)] + self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s])/(1+self.Nsa[(s,a)])
-                else:
-                    u = self.args.cpuct*self.Ps[s][a]*math.sqrt(self.Ns[s] + EPS)     # Q = 0 ?
+        _ , a = max((self.ucb_score(s,action), action) for action in range(self.game.getActionSize()) if valids[action])
 
-                if u > cur_best:
-                    cur_best = u
-                    best_act = a
-
-        a = best_act
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
@@ -126,3 +113,10 @@ class MCTS():
 
         self.Ns[s] += 1
         return -v
+
+    def ucb_score(self, s, a):
+        pb_c = math.log((self.Ns[s] + self.args.pb_c_base + 1) / self.args.pb_c_base) + self.args.pb_c_init
+        pb_c *= math.sqrt(self.Ns[s]) 
+        if (s,a) in self.Qsa:
+            return self.Qsa[(s,a)] + pb_c / (self.Nsa[(s,a)] + 1) * self.Ps[s][a]
+        return pb_c * self.Ps[s][a]
