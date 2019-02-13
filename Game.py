@@ -72,6 +72,9 @@ class Game():
         """
         pass
 
+    def getTerminal(self, board): 
+        return self.getGameEnded(board,1) != 0
+
     def getCanonicalForm(self, board, player):
         """
         Input:

@@ -1,122 +1,155 @@
 import math
 import numpy as np
-EPS = 1e-8
+from Game import Game
+from NeuralNet import NeuralNet
+from typing import List
+
+
+class Node(object):
+
+    def __init__(self, prior: float):
+        self.visit_count = 0
+        self.to_play = -1
+        self.prior = prior
+        self.value_sum = 0
+        self.children = {}
+
+    def expanded(self):
+        return len(self.children) > 0
+
+    def value(self):
+        if self.visit_count == 0:
+            return 0
+        return self.value_sum / self.visit_count
+
+
+class History(object):
+
+    def __init__(self, game: Game, board: np.ndarray, actions=None):
+        self.actions = actions or []
+        self.child_visits = []
+        self.game = game
+        self.board = board
+        self.num_actions = self.game.getActionSize()
+
+    def terminal(self):
+        return self.game.getTerminal(self.board)
+
+    def terminal_value(self, to_play):
+        return self.game.getGameEnded(self.board, to_play)
+
+    def legal_actions(self):
+        return self.game.getValidMoves(self.board, self.to_play())
+
+    def clone(self):
+        return History(self.game, self.board.copy(), list(self.actions))
+
+    def apply(self, action):
+        self.actions.append(action)
+
+    def store_search_statistics(self, root):
+        sum_visits = sum(
+            child.visit_count for child in root.children.itervalues())
+        self.child_visits.append([
+            root.children[a].visit_count /
+            sum_visits if a in root.children else 0
+            for a in range(self.num_actions)
+        ])
+
+    def to_play(self):
+        return (-1) ** len(self.actions)
+
+    def canonical_board(self):
+        return self.game.getCanonicalForm(self.board, self.to_play())
+
 
 class MCTS():
     """
     This class handles the MCTS tree.
     """
 
-    def __init__(self, game, nnet, args):
+    def __init__(self, game: Game, nnet: NeuralNet, args):
         self.game = game
         self.nnet = nnet
         self.args = args
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
-        self.Ps = {}        # stores initial policy (returned by neural net)
-
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
 
     def getActionProb(self, canonicalBoard, temp=1):
-        """
-        This function performs numMCTSSims simulations of MCTS starting from
-        canonicalBoard.
+        root = Node(0)
+        history = History(self.game, canonicalBoard)
 
-        Returns:
-            probs: a policy vector where the probability of the ith action is
-                   proportional to Nsa[(s,a)]**(1./temp)
-        """
+        self.evaluate(root, history.canonical_board)
+        self.add_exploration_noise(root)
+
         for _ in range(self.args.numMCTSSims):
-            self.search(canonicalBoard)
+            node = root
+            scratch_history = history.clone()
+            search_path = [node]
 
-        s = self.game.stringRepresentation(canonicalBoard)
-        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
+            while node.expanded():
+                action, node = self.select_child(node)
+                scratch_history.apply(action)
+                search_path.append(node)
 
-        if temp==0:
-            bestA = np.argmax(counts)
-            probs = [0]*len(counts)
-            probs[bestA]=1
-            return probs
+            value = self.evaluate(node, scratch_history)
+            self.backpropagate(search_path, value, scratch_history.to_play())
+        return self.select_action(history, root), root
 
-        counts = [x**(1./temp) for x in counts]
-        probs = [x/float(sum(counts)) for x in counts]
-        return probs
-
-
-    def search(self, canonicalBoard):
-        """
-        This function performs one iteration of MCTS. It is recursively called
-        till a leaf node is found. The action chosen at each node is one that
-        has the maximum upper confidence bound as in the paper.
-
-        Once a leaf node is found, the neural network is called to return an
-        initial policy P and a value v for the state. This value is propogated
-        up the search path. In case the leaf node is a terminal state, the
-        outcome is propogated up the search path. The values of Ns, Nsa, Qsa are
-        updated.
-
-        NOTE: the return values are the negative of the value of the current
-        state. This is done since v is in [-1,1] and if v is the value of a
-        state for the current player, then its value is -v for the other player.
-
-        Returns:
-            v: the negative of the value of the current canonicalBoard
-        """
-
-        s = self.game.stringRepresentation(canonicalBoard)
-
-        if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
-        if self.Es[s]!=0:
-            # terminal node
-            return -self.Es[s]
-
-        if s not in self.Ps:
-            # leaf node
-            self.Ps[s], v = self.nnet.predict(canonicalBoard)
-            valids = self.game.getValidMoves(canonicalBoard, 1)
-            self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
-            sum_Ps_s = np.sum(self.Ps[s])
-            if sum_Ps_s > 0:
-                self.Ps[s] /= sum_Ps_s    # renormalize
-            else:
-                # if all valid moves were masked make all valid moves equally probable
-                
-                # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
-                # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
-                print("All valid moves were masked, do workaround.")
-                self.Ps[s] = self.Ps[s] + valids
-                self.Ps[s] /= np.sum(self.Ps[s])
-
-            self.Vs[s] = valids
-            self.Ns[s] = 0
-            return -v
-
-        valids = self.Vs[s]
-
-        _ , a = max((self.ucb_score(s,action), action) for action in range(self.game.getActionSize()) if valids[action])
-
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
-        next_s = self.game.getCanonicalForm(next_s, next_player)
-
-        v = self.search(next_s)
-
-        if (s,a) in self.Qsa:
-            self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
-            self.Nsa[(s,a)] += 1
-
+    def select_action(self, history: History, root: Node):
+        visit_counts = [(child.visit_count, action)
+                        for action, child in root.children.iteritems()]
+        if len(history.history) < self.args.tempThreshold:
+            _, action = (0, 0)
         else:
-            self.Qsa[(s,a)] = v
-            self.Nsa[(s,a)] = 1
+            _, action = max(visit_counts)
+        return action
 
-        self.Ns[s] += 1
-        return -v
+    # Select the child with the highest UCB score.
 
-    def ucb_score(self, s, a):
-        pb_c = math.log((self.Ns[s] + self.args.pb_c_base + 1) / self.args.pb_c_base) + self.args.pb_c_init
-        pb_c *= math.sqrt(self.Ns[s]) 
-        if (s,a) in self.Qsa:
-            return self.Qsa[(s,a)] + pb_c / (self.Nsa[(s,a)] + 1) * self.Ps[s][a]
-        return pb_c * self.Ps[s][a]
+    def select_child(self, node: Node):
+        _, action, child = max((self.ucb_score(node, child), action, child)
+                               for action, child in node.children.iteritems())
+        return action, child
+
+    # The score for a node is based on its value, plus an exploration bonus based on
+    # the prior.
+
+    def ucb_score(self, parent: Node, child: Node):
+        pb_c = math.log((parent.visit_count + self.args.pb_c_base + 1) /
+                        self.args.pb_c_base) + self.args.pb_c_init
+        pb_c *= math.sqrt(parent.visit_count) / (child.visit_count + 1)
+
+        prior_score = pb_c * child.prior
+        value_score = child.value()
+        return prior_score + value_score
+
+    # We use the neural network to obtain a value and policy prediction.
+    def evaluate(self, node: Node, history: History):
+
+        pi, value = self.nnet.predict(history.canonical_board)
+
+        # Expand the node.
+        node.to_play = history.to_play()
+        policy = {a: math.exp(pi[a]) for a in history.legal_actions()}
+        policy_sum = sum(policy.itervalues())
+        for action, p in policy.iteritems():
+            node.children[action] = Node(p / policy_sum)
+        return value
+
+    # At the end of a simulation, we propagate the evaluation all the way up the
+    # tree to the root.
+
+    def backpropagate(self, search_path: List[Node], value: float, to_play):
+        for node in search_path:
+            node.value_sum += value if node.to_play == to_play else (1 - value)
+            node.visit_count += 1
+
+    # At the start of each search, we add dirichlet noise to the prior of the root
+    # to encourage the search to explore new actions.
+
+    def add_exploration_noise(self, node: Node):
+        actions = node.children.keys()
+        noise = np.random.gamma(0.3, 1, len(actions))
+        frac = 0.25
+        for a, n in zip(actions, noise):
+            node.children[a].prior = node.children[a].prior * \
+                (1 - frac) + n * frac
