@@ -7,7 +7,7 @@ from utils import *
 
 args = dotdict({
     'numIters': 100,
-    'numEps': 500,
+    'numEps': 100,
     'tempThreshold': 15,
     'updateThreshold': 0.5,
     'maxlenOfQueue': 200000,
@@ -17,8 +17,8 @@ args = dotdict({
 
     'save_all_examples': False,
     'checkpoint': './temp/',
-    'load_model': True,
-    'load_folder_file': ('./saves/','latest'),
+    'load_model': False,
+    'load_folder_file': ('./save/','checkpoint_25.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
 })

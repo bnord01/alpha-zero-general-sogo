@@ -160,6 +160,25 @@ class SogoNNet():
             [branch1x1, branch4x4, branch3x3dbl, branch_pool],
             name='mixed2')
 
+        # 4 x 4
+        branch1x1 = conv2d_bn(x, 128, 1, 1)
+
+        branch4x4 = conv2d_bn(x, 48, 1, 1)
+        branch4x4 = conv2d_bn(branch4x4, 128, 1, 4)
+        branch4x4 = conv2d_bn(branch4x4, 256, 4, 1)
+
+        branch3x3dbl = conv2d_bn(x, 64, 1, 1)
+        branch3x3dbl = conv2d_bn(branch3x3dbl, 128, 3, 3)
+        branch3x3dbl = conv2d_bn(branch3x3dbl, 128, 3, 3)
+
+        branch_pool = layers.AveragePooling2D((3, 3),
+                                              strides=(1, 1),
+                                              padding='same')(x)
+        branch_pool = conv2d_bn(branch_pool, 128, 1, 1)
+        x = layers.concatenate(
+            [branch1x1, branch4x4, branch3x3dbl, branch_pool],
+            name='mixed3')
+
         x = Flatten()(x)
         x = Dense(2048, name='dense1')(x)
         x = BatchNormalization()(x)
