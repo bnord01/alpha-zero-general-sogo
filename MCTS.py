@@ -9,7 +9,7 @@ class Node(object):
 
     def __init__(self, prior: float):
         self.visit_count = 0
-        self.to_play = -1
+        self.to_play = 1
         self.prior = prior
         self.value_sum = 0
         self.children = {}
@@ -94,13 +94,13 @@ class MCTS():
             self.backpropagate(search_path, value, scratch_play.to_play())
         return self.select_action(play, root), root
 
-    def select_action(self, play: Play, root: Node):
-        visit_counts = [(child.visit_count, action)
-                        for action, child in root.children.iteritems()]
-        if len(play.actions) < self.args.tempThreshold:
-            _, action = (0, 0)
+    def select_action(self, play: Play, root: Node):        
+        if len(play.actions) < self.args.tempThreshold:            
+            action = np.random.choice(
+                range(play.num_actions),
+                p=[child.visit_count/root.visit_count for child in root.children])
         else:
-            _, action = max(visit_counts)
+            _, action = max((child.visit_count, action) for action, child in root.children.iteritems())
         return action
 
     # Select the child with the highest UCB score.
