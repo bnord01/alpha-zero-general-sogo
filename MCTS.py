@@ -22,14 +22,21 @@ class Node(object):
             return 0
         return self.value_sum / self.visit_count
 
+    def print(self, indent='',action=''):
+        print(f"{indent}{action} -> p:{float(self.prior):1.2} v:{float(self.value()):1.2} n:{self.visit_count}")
+        for a, child in self.children.items():
+            child.print(indent+'  ', str(a))
+
+
 
 class Play(object):
 
-    def __init__(self, game: Game, board: np.ndarray, actions=None):
+    def __init__(self, game: Game, board: np.ndarray, actions=None, player = 1):
         self.actions = actions or []
         self.child_visits = []
         self.game = game
         self.board = board
+        self.player = player 
         self.num_actions = self.game.getActionSize()
 
     def terminal(self):
@@ -46,6 +53,7 @@ class Play(object):
 
     def apply(self, action):
         self.actions.append(action)
+        self.board, self.player = self.game.getNextState(self.board, self.player, action)
 
     def store_search_statistics(self, root):
         sum_visits = sum(
@@ -57,7 +65,7 @@ class Play(object):
         ])
 
     def to_play(self):
-        return (-1) ** len(self.actions)
+        return self.player
 
     def canonical_board(self):
         return self.game.getCanonicalForm(self.board, self.to_play())
@@ -73,7 +81,7 @@ class MCTS():
         self.nnet = nnet
         self.args = args
 
-    def getActionProb(self, canonicalBoard, temp=1):
+    def get_action_prob(self, canonicalBoard, temp=1):
         root = Node(0)
         play = Play(self.game, canonicalBoard)
 
@@ -92,22 +100,14 @@ class MCTS():
 
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, scratch_play.to_play())
-        return self.select_action(play, root), root
-
-    def select_action(self, play: Play, root: Node):        
-        if len(play.actions) < self.args.tempThreshold:            
-            action = np.random.choice(
-                range(play.num_actions),
-                p=[child.visit_count/root.visit_count for child in root.children])
-        else:
-            _, action = max((child.visit_count, action) for action, child in root.children.iteritems())
-        return action
+        root.print()
+        return [child.visit_count/root.visit_count for child in root.children.values()]
 
     # Select the child with the highest UCB score.
 
     def select_child(self, node: Node):
         _, action, child = max((self.ucb_score(node, child), action, child)
-                               for action, child in node.children.iteritems())
+                               for action, child in node.children.items())
         return action, child
 
     # The score for a node is based on its value, plus an exploration bonus based on
@@ -130,10 +130,9 @@ class MCTS():
         pi, value = self.nnet.predict(play.canonical_board())
 
         # Expand the node.
-        node.to_play = play.to_play()
-        policy = {a: math.exp(pi[a]) for a in play.legal_actions()}
-        policy_sum = sum(policy.itervalues())
-        for action, p in policy.iteritems():
+        policy = {a: pi[a] for a in play.legal_actions()}
+        policy_sum = sum(policy.values())
+        for action, p in policy.items():
             node.children[action] = Node(p / policy_sum)
         return value
 
@@ -150,8 +149,9 @@ class MCTS():
 
     def add_exploration_noise(self, node: Node):
         actions = node.children.keys()
-        noise = np.random.gamma(0.3, 1, len(actions))
-        frac = 0.25
+        noise = np.random.gamma(self.args.root_dirichlet_alpha, 1, len(actions))
+        noise = noise/sum(noise)
+        frac = self.args.root_exploration_fraction
         for a, n in zip(actions, noise):
             node.children[a].prior = node.children[a].prior * \
                 (1 - frac) + n * frac
