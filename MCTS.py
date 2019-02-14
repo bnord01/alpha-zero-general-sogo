@@ -23,7 +23,7 @@ class Node(object):
         return self.value_sum / self.visit_count
 
 
-class History(object):
+class Play(object):
 
     def __init__(self, game: Game, board: np.ndarray, actions=None):
         self.actions = actions or []
@@ -42,7 +42,7 @@ class History(object):
         return self.game.getValidMoves(self.board, self.to_play())
 
     def clone(self):
-        return History(self.game, self.board.copy(), list(self.actions))
+        return Play(self.game, self.board.copy(), list(self.actions))
 
     def apply(self, action):
         self.actions.append(action)
@@ -75,29 +75,29 @@ class MCTS():
 
     def getActionProb(self, canonicalBoard, temp=1):
         root = Node(0)
-        history = History(self.game, canonicalBoard)
+        play = Play(self.game, canonicalBoard)
 
-        self.evaluate(root, history.canonical_board)
+        self.evaluate(root, play)
         self.add_exploration_noise(root)
 
         for _ in range(self.args.numMCTSSims):
             node = root
-            scratch_history = history.clone()
+            scratch_play = play.clone()
             search_path = [node]
 
             while node.expanded():
                 action, node = self.select_child(node)
-                scratch_history.apply(action)
+                scratch_play.apply(action)
                 search_path.append(node)
 
-            value = self.evaluate(node, scratch_history)
-            self.backpropagate(search_path, value, scratch_history.to_play())
-        return self.select_action(history, root), root
+            value = self.evaluate(node, scratch_play)
+            self.backpropagate(search_path, value, scratch_play.to_play())
+        return self.select_action(play, root), root
 
-    def select_action(self, history: History, root: Node):
+    def select_action(self, play: Play, root: Node):
         visit_counts = [(child.visit_count, action)
                         for action, child in root.children.iteritems()]
-        if len(history.history) < self.args.tempThreshold:
+        if len(play.actions) < self.args.tempThreshold:
             _, action = (0, 0)
         else:
             _, action = max(visit_counts)
@@ -123,13 +123,15 @@ class MCTS():
         return prior_score + value_score
 
     # We use the neural network to obtain a value and policy prediction.
-    def evaluate(self, node: Node, history: History):
+    def evaluate(self, node: Node, play: Play):
+        if play.terminal() :
+            return play.terminal_value(1)
 
-        pi, value = self.nnet.predict(history.canonical_board)
+        pi, value = self.nnet.predict(play.canonical_board())
 
         # Expand the node.
-        node.to_play = history.to_play()
-        policy = {a: math.exp(pi[a]) for a in history.legal_actions()}
+        node.to_play = play.to_play()
+        policy = {a: math.exp(pi[a]) for a in play.legal_actions()}
         policy_sum = sum(policy.itervalues())
         for action, p in policy.iteritems():
             node.children[action] = Node(p / policy_sum)
@@ -140,7 +142,7 @@ class MCTS():
 
     def backpropagate(self, search_path: List[Node], value: float, to_play):
         for node in search_path:
-            node.value_sum += value if node.to_play == to_play else (1 - value)
+            node.value_sum += value * node.to_play * to_play
             node.visit_count += 1
 
     # At the start of each search, we add dirichlet noise to the prior of the root
