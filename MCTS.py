@@ -22,21 +22,22 @@ class Node(object):
             return 0
         return self.value_sum / self.visit_count
 
-    def print(self, indent='',action=''):
+    def print(self, limit=-1, indent='', action=''):
+        if limit == 0 or self.visit_count <= 0:
+            return
         print(f"{indent}{action} -> p:{float(self.prior):1.2} v:{float(self.value()):1.2} n:{self.visit_count}")
         for a, child in self.children.items():
-            child.print(indent+'  ', str(a))
-
+            child.print(limit=limit-1, indent=indent+'  ', action=str(a))
 
 
 class Play(object):
 
-    def __init__(self, game: Game, board: np.ndarray, actions=None, player = 1):
+    def __init__(self, game: Game, board: np.ndarray, actions=None, player=1):
         self.actions = actions or []
         self.child_visits = []
         self.game = game
         self.board = board
-        self.player = player 
+        self.player = player
         self.num_actions = self.game.getActionSize()
 
     def terminal(self):
@@ -53,7 +54,8 @@ class Play(object):
 
     def apply(self, action):
         self.actions.append(action)
-        self.board, self.player = self.game.getNextState(self.board, self.player, action)
+        self.board, self.player = self.game.getNextState(
+            self.board, self.player, action)
 
     def store_search_statistics(self, root):
         sum_visits = sum(
@@ -100,7 +102,7 @@ class MCTS():
 
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, scratch_play.to_play())
-        root.print()
+        root.print(limit=4)
         return [child.visit_count/root.visit_count for child in root.children.values()]
 
     # Select the child with the highest UCB score.
@@ -124,8 +126,8 @@ class MCTS():
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
-        if play.terminal() :
-            return play.terminal_value(1)
+        if play.terminal():
+            return play.terminal_value(play.to_play())
 
         pi, value = self.nnet.predict(play.canonical_board())
 
@@ -151,7 +153,8 @@ class MCTS():
 
     def add_exploration_noise(self, node: Node):
         actions = node.children.keys()
-        noise = np.random.gamma(self.args.root_dirichlet_alpha, 1, len(actions))
+        noise = np.random.gamma(
+            self.args.root_dirichlet_alpha, 1, len(actions))
         noise = noise/sum(noise)
         frac = self.args.root_exploration_fraction
         for a, n in zip(actions, noise):

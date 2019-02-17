@@ -58,7 +58,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 100
+      self.numMCTSSims = 1000
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
@@ -76,7 +76,7 @@ config = Config()
 
 mcts = MCTS(game,nn,config)
 board,_ = game.getNextState(game.getInitBoard(),1,0)
-board,_ = game.getNextState(game.getInitBoard(),1,1)
+board,_ = game.getNextState(board,1,1)
 print(mcts.get_action_prob(board))
 
 #mcts2 = MCTS2(game,nn,config)
