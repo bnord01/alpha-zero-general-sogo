@@ -7,8 +7,10 @@ import numpy as np
 
 
 class NN(NeuralNet):
+  def __init__(self,game:Game):
+    self.game = game
   def predict(self, board):
-    return np.array([1., 1., 1.])/3, 0
+    return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
 
 
 class TestGame(Game):
@@ -56,7 +58,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 1000
+      self.numMCTSSims = 100
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
@@ -66,12 +68,16 @@ class Config(object):
       self.pb_c_base = 19652
       self.pb_c_init = 1.25
 
-game = TestGame()
+from tictactoe.TicTacToeGame import TicTacToeGame
+
+game = TicTacToeGame(3)
 nn = NN(game)
 config = Config()
 
 mcts = MCTS(game,nn,config)
-print(mcts.get_action_prob(game.getInitBoard()))
+board,_ = game.getNextState(game.getInitBoard(),1,0)
+board,_ = game.getNextState(game.getInitBoard(),1,1)
+print(mcts.get_action_prob(board))
 
-mcts2 = MCTS2(game,nn,config)
-print(mcts2.getActionProb(game.getInitBoard()))
+#mcts2 = MCTS2(game,nn,config)
+#print(mcts2.getActionProb(game.getInitBoard()))

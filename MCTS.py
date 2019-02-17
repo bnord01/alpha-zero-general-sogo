@@ -130,10 +130,12 @@ class MCTS():
         pi, value = self.nnet.predict(play.canonical_board())
 
         # Expand the node.
-        policy = {a: pi[a] for a in play.legal_actions()}
-        policy_sum = sum(policy.values())
-        for action, p in policy.items():
-            node.children[action] = Node(p / policy_sum)
+        legal = play.legal_actions()
+        pi = pi*legal
+        pi = pi / sum(pi)
+        for action in range(len(pi)):
+            if legal[action] == 1:
+                node.children[action] = Node(pi[action])
         return value
 
     # At the end of a simulation, we propagate the evaluation all the way up the
