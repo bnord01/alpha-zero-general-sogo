@@ -5,24 +5,34 @@ from sogo.SogoGame import SogoGame as Game
 from sogo.keras.NNet import NNetWrapper as nn
 from utils import *
 
-args = dotdict({
-    'numIters': 100,
-    'numEps': 50,
-    'tempThreshold': 15,
-    'updateThreshold': 0.5,
-    'maxlenOfQueue': 200000,
-    'numMCTSSims': 150,
-    'arenaCompare': 50,
-    'pb_c_base' : 19652,
-    'pb_c_init' : 1.25,
+class Config(object):
+    def __init__(self):    
+     
+      self.numIters = 100
+      self.numEps = 50
+      self.tempThreshold = 15
+      self.updateThreshold = 0.5
+      self.maxlenOfQueue = 200000
+      self.save_all_examples = False
+      self.checkpoint = './temp/'
+      self.load_model = False
+      self.load_folder_file = ('./saves/','latest')
+      self.numItersForTrainExamplesHistory = 20
 
-    'save_all_examples': False,
-    'checkpoint': './temp/',
-    'load_model': False,
-    'load_folder_file': ('./saves/','latest'),
-    'numItersForTrainExamplesHistory': 20,
+      self.num_sampling_moves = 30
+      self.max_moves = 512  # for chess and shogi, 722 for Go.
+      self.numMCTSSims = 400
 
-})
+      # Root prior exploration noise.
+      self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
+      self.root_exploration_fraction = 0.0
+
+      # UCB formula
+      self.pb_c_base = 19652
+      self.pb_c_init = 1.25
+
+
+args = Config()
 
 if __name__=="__main__":
     g = Game(4)
