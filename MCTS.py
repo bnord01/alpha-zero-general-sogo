@@ -103,7 +103,7 @@ class MCTS():
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, scratch_play.to_play())
         root.print(limit=4)
-        return [child.visit_count/root.visit_count for child in root.children.values()]
+        return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)]
 
     # Select the child with the highest UCB score.
 

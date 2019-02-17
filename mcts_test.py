@@ -75,8 +75,8 @@ nn = NN(game)
 config = Config()
 
 mcts = MCTS(game,nn,config)
-board,_ = game.getNextState(game.getInitBoard(),1,0)
-board,_ = game.getNextState(board,1,1)
+board,_ = game.getNextState(game.getInitBoard(),-1,0)
+board,_ = game.getNextState(board,-1,1)
 print(mcts.get_action_prob(board))
 
 #mcts2 = MCTS2(game,nn,config)
