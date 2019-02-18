@@ -58,7 +58,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 1000
+      self.numMCTSSims = 10000
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
@@ -68,16 +68,38 @@ class Config(object):
       self.pb_c_base = 19652
       self.pb_c_init = 1.25
 
+      # Load model
+
+      self.load_model = True
+      self.load_folder_file = ('./models/','checkpoint_25.pth.tar')
+
 from tictactoe.TicTacToeGame import TicTacToeGame
 
 game = TicTacToeGame(3)
-nn = NN(game)
 config = Config()
+board, _ = game.getNextState(game.getInitBoard(),-1,0)
+board, _ = game.getNextState(board,1,3)
+board, _ = game.getNextState(board,-1,1)
 
-mcts = MCTS(game,nn,config)
-board,_ = game.getNextState(game.getInitBoard(),-1,0)
-board,_ = game.getNextState(board,-1,1)
-print(mcts.get_action_prob(board))
+from tictactoe.keras.NNet import NNetWrapper as NNet
+nn1 = NNet(game)
+nn1.load_checkpoint('pretrained_models/tictactoe/keras/','best-25eps-25sim-10epch.pth.tar')
+mcts1 = MCTS(game,nn1,config)
+
+from timeit import default_timer as timer
+
+start = timer()
+print(mcts1.get_action_prob(board))
+end = timer()
+print(f"With neural net: {end-start}")
+
+nn2 = NN(game)
+mcts2 = MCTS(game,nn2,config)
+start = timer()
+print(mcts2.get_action_prob(board))
+end = timer()
+print(f"With dummy net: {end-start}")
+
 
 #mcts2 = MCTS2(game,nn,config)
 #print(mcts2.getActionProb(game.getInitBoard()))
