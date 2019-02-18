@@ -124,11 +124,12 @@ class MCTS():
         pb_c *= math.sqrt(parent.visit_count) / (child.visit_count + 1)
 
         prior_score = pb_c * child.prior
-        value_score = child.value()
+        value_score = - child.value()
         return prior_score + value_score
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
+        node.to_play = play.to_play()
         if play.terminal():
             return play.terminal_value(play.to_play())
 
