@@ -104,7 +104,7 @@ class MCTS():
                 search_path.append(node)
 
             value = self.evaluate(node, scratch_play)
-            self.backpropagate(search_path, value, scratch_play.to_play())
+            self.backpropagate(search_path, value, - scratch_play.to_play())
         root.print(limit=4)
         return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)]
 
@@ -129,12 +129,12 @@ class MCTS():
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
-        node.to_play = play.to_play()
+        node.to_play = - play.to_play()
         if play.terminal():
-            return - play.terminal_value(play.to_play())
+            return play.terminal_value(node.to_play)
 
         pi, value = self.nnet.predict(play.canonical_board())
-        value = - value * play.to_play()
+        value = value * node.to_play
 
         # Expand the node.
         legal = play.legal_actions()
@@ -148,9 +148,9 @@ class MCTS():
     # At the end of a simulation, we propagate the evaluation all the way up the
     # tree to the root.
 
-    def backpropagate(self, search_path: List[Node], value: float, to_play):
+    def backpropagate(self, search_path: List[Node], value: float, last_player):
         for node in search_path:
-            node.value_sum += value * node.to_play * to_play
+            node.value_sum += value * node.to_play * last_player
             node.visit_count += 1
 
     # At the start of each search, we add dirichlet noise to the prior of the root
