@@ -133,6 +133,7 @@ class MCTS():
             return play.terminal_value(play.to_play())
 
         pi, value = self.nnet.predict(play.canonical_board())
+        value = value * play.to_play()
 
         # Expand the node.
         legal = play.legal_actions()
