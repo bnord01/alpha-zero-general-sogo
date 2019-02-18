@@ -25,7 +25,7 @@ class Node(object):
     def print(self, limit=-1, indent='', action=''):
         if limit == 0 or self.visit_count <= 0:
             return
-        print(f"{indent}{action} -> p:{float(self.prior):1.2} v:{float(self.value()):1.2} n:{self.visit_count}")
+        print(f"{indent}{action} -> v:{float(self.value()):1.2} n:{self.visit_count} p:{float(self.prior):1.2} tp:{self.to_play}")
         for a, child in self.children.items():
             child.print(limit=limit-1, indent=indent+'  ', action=str(a))
 
@@ -105,7 +105,7 @@ class MCTS():
 
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, scratch_play.to_play())
-        root.print(limit=2)
+        root.print(limit=4)
         return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)]
 
     # Select the child with the highest UCB score.
@@ -124,17 +124,17 @@ class MCTS():
         pb_c *= math.sqrt(parent.visit_count) / (child.visit_count + 1)
 
         prior_score = pb_c * child.prior
-        value_score = - child.value()
+        value_score = child.value()
         return prior_score + value_score
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
         node.to_play = play.to_play()
         if play.terminal():
-            return play.terminal_value(play.to_play())
+            return - play.terminal_value(play.to_play())
 
         pi, value = self.nnet.predict(play.canonical_board())
-        value = value * play.to_play()
+        value = - value * play.to_play()
 
         # Expand the node.
         legal = play.legal_actions()
