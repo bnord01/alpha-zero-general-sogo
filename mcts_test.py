@@ -100,6 +100,8 @@ board = game.getInitBoard()
 board, _ = game.getNextState(game.getInitBoard(),-1,1)
 board, _ = game.getNextState(board,1,4)
 
+board, _ = game.getNextState(game.getInitBoard(),-1,4)
+
 
 nn2 = NN(game)
 mcts2 = MCTS(game,nn2,config)
