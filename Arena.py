@@ -22,6 +22,7 @@ class Arena():
         self.player2 = player2
         self.game = game
         self.display = display
+        self.game_lengths = []
 
     def playGame(self, verbose=False):
         """
@@ -55,6 +56,7 @@ class Arena():
             assert(self.display)
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
             self.display(board)
+        self.game_lengths.append(it)
         return self.game.getGameEnded(board, 1)
 
     def playGames(self, num, verbose=False):
@@ -72,6 +74,7 @@ class Arena():
         end = time.time()
         eps = 0
         maxeps = int(num)
+        self.game_lengths = []
 
         num = int(num/2)
         oneWon = 0
@@ -112,5 +115,6 @@ class Arena():
             bar.next()
             
         bar.finish()
+        print(f"Arena game lengths,        min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
 
         return oneWon, twoWon, draws

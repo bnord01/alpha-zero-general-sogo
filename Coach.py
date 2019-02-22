@@ -25,6 +25,7 @@ class Coach():
         # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.trainExamplesHistory = []
         self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
+        self.game_lengths = []
 
     def executeEpisode(self):
         """
@@ -65,7 +66,7 @@ class Coach():
             r = self.game.getGameEnded(board, self.curPlayer)
 
             if r != 0:
-                return [(x[0], x[2], r*((-1)**(x[1] != self.curPlayer))) for x in trainExamples]
+                return [(x[0], x[2], r*((-1)**(x[1] != self.curPlayer))) for x in trainExamples], episodeStep
 
     def learn(self):
         """
@@ -84,6 +85,7 @@ class Coach():
                 iterationTrainExamples = deque(
                     [], maxlen=self.args.maxlenOfQueue)
 
+                eps_lengths = []
                 eps_time = AverageMeter()
                 bar = Bar('Self Play', max=self.args.numEps)
                 end = time.time()
@@ -91,7 +93,9 @@ class Coach():
                 for eps in range(self.args.numEps):
                     # reset search tree
                     self.mcts = MCTS(self.game, self.nnet, self.args)
-                    iterationTrainExamples += self.executeEpisode()
+                    examples, steps = self.executeEpisode()
+                    iterationTrainExamples += examples
+                    eps_lengths.append(steps)
 
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
@@ -101,6 +105,11 @@ class Coach():
                     bar.next()
                 bar.finish()
 
+                print(f"This episode game lengths, min:{np.min(eps_lengths):0.0f}, avg:{np.average(eps_lengths):0.2f}, max:{np.max(eps_lengths):0.0f}, std:{np.std(eps_lengths):0.2f}")
+
+                self.game_lengths += eps_lengths
+
+                print(f"All episodes game lengths, min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
                 # save the iteration examples to the history
                 self.trainExamplesHistory.append(iterationTrainExamples)
 

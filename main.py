@@ -8,7 +8,7 @@ class Config(object):
     def __init__(self):    
      
       self.numIters = 100
-      self.numEps = 50
+      self.numEps = 5
       self.tempThreshold = 15
       self.updateThreshold = 0.5
       self.maxlenOfQueue = 200000
@@ -20,7 +20,7 @@ class Config(object):
 
       self.num_sampling_moves = 10
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 400
+      self.numMCTSSims = 10
 
       self.arenaCompare = 20
 
