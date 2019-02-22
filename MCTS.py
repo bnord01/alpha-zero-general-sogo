@@ -83,10 +83,10 @@ class MCTS():
         self.nnet = nnet
         self.args = args
 
-    def getActionProb(self, canonicalBoard, temp=1):
-        return self.get_action_prob(canonicalBoard,temp)
+    def getActionProb(self, canonicalBoard, temp=1, do_print=-1):
+        return self.get_action_prob(canonicalBoard,temp, do_print)
 
-    def get_action_prob(self, canonicalBoard, temp=1):
+    def get_action_prob(self, canonicalBoard, temp=1, do_print=-1):
         root = Node(0)
         play = Play(self.game, canonicalBoard)
 
@@ -105,7 +105,8 @@ class MCTS():
 
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, - value, - scratch_play.to_play())
-        #root.print(limit=3)
+        if(do_print >= 0):
+            root.print(limit=do_print)
         return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)]
 
     # Select the child with the highest UCB score.

@@ -22,7 +22,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 50000
+      self.numMCTSSims = 5000
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
