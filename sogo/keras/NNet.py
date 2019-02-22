@@ -1,11 +1,12 @@
+import keras
+from sogo.keras.SogoNNet import SogoNNet as onnet
+from NeuralNet import NeuralNet
+from utils import *
 import os
 import numpy as np
 import sys
 sys.path.append('..')
-from utils import *
-from NeuralNet import NeuralNet
 
-from sogo.keras.SogoNNet import SogoNNet as onnet
 
 """
 NeuralNet wrapper class for the SogoNNet.
@@ -24,6 +25,7 @@ args = dotdict({
     'num_channels': 512,
 })
 
+
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.nnet = onnet(game, args)
@@ -38,7 +40,12 @@ class NNetWrapper(NeuralNet):
         input_boards = np.asarray(input_boards)
         target_pis = np.asarray(target_pis)
         target_vs = np.asarray(target_vs)
-        self.nnet.model.fit(x = input_boards, y = [target_pis, target_vs], batch_size = args.batch_size, epochs = args.epochs)
+        tb_callback = keras.callbacks.TensorBoard(
+            log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+
+        self.nnet.model.fit(x=input_boards, y=[target_pis, target_vs], 
+                            batch_size=args.batch_size, epochs=args.epochs, 
+                            callbacks=[tb_callback])
 
     def predict(self, board):
         board = board[np.newaxis, :, :]

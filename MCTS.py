@@ -105,7 +105,7 @@ class MCTS():
 
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, - scratch_play.to_play())
-        root.print(limit=4)
+        # root.print(limit=4)
         return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)]
 
     # Select the child with the highest UCB score.
@@ -124,7 +124,7 @@ class MCTS():
         pb_c *= math.sqrt(parent.visit_count) / (child.visit_count + 1)
 
         prior_score = pb_c * child.prior
-        value_score = child.value()
+        value_score = (child.value() + 1)/2
         return prior_score + value_score
 
     # We use the neural network to obtain a value and policy prediction.

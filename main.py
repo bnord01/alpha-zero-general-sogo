@@ -19,13 +19,13 @@ class Config(object):
       self.load_folder_file = ('./saves/','latest')
       self.numItersForTrainExamplesHistory = 20
 
-      self.num_sampling_moves = 30
+      self.num_sampling_moves = 10
       self.max_moves = 512  # for chess and shogi, 722 for Go.
       self.numMCTSSims = 400
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
-      self.root_exploration_fraction = 0.0
+      self.root_exploration_fraction = 0.2
 
       # UCB formula
       self.pb_c_base = 19652
