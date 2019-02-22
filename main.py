@@ -3,7 +3,6 @@ from Coach import Coach
 #from othello.tensorflow.NNet import NNetWrapper as nn
 from sogo.SogoGame import SogoGame as Game
 from sogo.keras.NNet import NNetWrapper as nn
-from utils import *
 
 class Config(object):
     def __init__(self):    
@@ -22,6 +21,8 @@ class Config(object):
       self.num_sampling_moves = 10
       self.max_moves = 512  # for chess and shogi, 722 for Go.
       self.numMCTSSims = 400
+
+      self.arenaCompare = 20
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
