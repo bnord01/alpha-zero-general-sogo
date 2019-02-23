@@ -5,9 +5,9 @@ from sogo.SogoPlayers import HumanSogoPlayer
 
 import numpy as np
 from NeuralNet import NeuralNet
-from Game import Game
+from sogo.keras.NNet import NNetWrapper as NNet
 
-import numpy as np
+from Game import Game
 
 """
 use this script to play any two agents against each other, or play manually with
@@ -22,7 +22,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 5000
+      self.numMCTSSims = 200
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
@@ -35,7 +35,7 @@ class Config(object):
       # Load model
 
       self.load_model = True
-      self.load_folder_file = ('./models/','checkpoint_25.pth.tar')
+      self.load_folder_file = ('./temp/','best.pth.tar')
 
 class NN(NeuralNet):
   def __init__(self,game:Game):
@@ -43,8 +43,12 @@ class NN(NeuralNet):
   def predict(self, board):
     return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
 
-nn = NN(g)
-mcts1 = MCTS(g, nn, Config())
+config = Config()
+# nn = NN(g)
+
+nn = NNet(g)
+nn.load_checkpoint(*(config.load_folder_file))
+mcts1 = MCTS(g, nn, config)
 n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
 
 hp = HumanSogoPlayer(g).play
