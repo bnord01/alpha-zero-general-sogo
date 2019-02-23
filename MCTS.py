@@ -9,7 +9,7 @@ class Node(object):
 
     def __init__(self, prior: float):
         self.visit_count = 0
-        self.to_play = 1
+        self.player = 1
         self.prior = prior
         self.value_sum = 0
         self.children = {}
@@ -25,7 +25,7 @@ class Node(object):
     def print(self, limit=-1, indent='', action=''):
         if limit == 0 or self.visit_count <= 0:
             return
-        print(f"{indent}{action} -> v:{float(self.value()):1.2} n:{self.visit_count} p:{float(self.prior):1.2} tp:{self.to_play}")
+        print(f"{indent}{action} -> v:{float(self.value()):1.2} n:{self.visit_count} p:{float(self.prior):1.2} tp:{self.player}")
         for a, child in self.children.items():
             child.print(limit=limit-1, indent=indent+'  ', action=str(a))
 
@@ -34,7 +34,6 @@ class Play(object):
 
     def __init__(self, game: Game, board: np.ndarray, actions=None, player=1):
         self.actions = actions or []
-        self.child_visits = []
         self.game = game
         self.board = board
         self.player = player
@@ -43,34 +42,22 @@ class Play(object):
     def terminal(self):
         return self.game.getTerminal(self.board)
 
-    def terminal_value(self, to_play):
-        return self.game.getGameEnded(self.board, to_play)
+    def terminal_value(self, player):
+        return self.game.getGameEnded(self.board, player)
 
     def legal_actions(self):
-        return self.game.getValidMoves(self.board, self.to_play())
+        return self.game.getValidMoves(self.board, self.player)
 
     def clone(self):
-        return Play(self.game, self.board.copy(), list(self.actions))
+        return Play(self.game, self.board.copy(), list(self.actions), self.player)
 
     def apply(self, action):
         self.actions.append(action)
         self.board, self.player = self.game.getNextState(
             self.board, self.player, action)
 
-    def store_search_statistics(self, root):
-        sum_visits = sum(
-            child.visit_count for child in root.children.itervalues())
-        self.child_visits.append([
-            root.children[a].visit_count /
-            sum_visits if a in root.children else 0
-            for a in range(self.num_actions)
-        ])
-
-    def to_play(self):
-        return self.player
-
     def canonical_board(self):
-        return self.game.getCanonicalForm(self.board, self.to_play())
+        return self.game.getCanonicalForm(self.board, self.player)
 
 
 class MCTS():
@@ -97,14 +84,15 @@ class MCTS():
             node = root
             scratch_play = play.clone()
             search_path = [node]
-
+            
             while node.expanded():
                 action, node = self.select_child(node)
                 scratch_play.apply(action)
                 search_path.append(node)
-
+            
             value = self.evaluate(node, scratch_play)
-            self.backpropagate(search_path, - value, - scratch_play.to_play())
+            self.backpropagate(search_path, - value, - scratch_play.player)
+            
         if(do_print >= 0):
             root.print(limit=do_print)
         return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)], root
@@ -130,12 +118,12 @@ class MCTS():
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
-        node.to_play = - play.to_play()
+        node.player = - play.player
         if play.terminal():
-            return play.terminal_value(node.to_play)
+            return play.terminal_value(node.player)
 
         pi, value = self.nnet.predict(play.canonical_board())
-        value = value * node.to_play
+        value = value * node.player
 
         # Expand the node.
         legal = play.legal_actions()
@@ -151,7 +139,7 @@ class MCTS():
 
     def backpropagate(self, search_path: List[Node], value: float, last_player):
         for node in search_path:
-            node.value_sum += value * node.to_play * last_player
+            node.value_sum += value * node.player * last_player
             node.visit_count += 1
 
     # At the start of each search, we add dirichlet noise to the prior of the root
