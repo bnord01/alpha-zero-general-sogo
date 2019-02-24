@@ -37,7 +37,6 @@ class Play(object):
         self.game = game
         self.board = board
         self.player = player
-        self.num_actions = self.game.getActionSize()
 
     def terminal(self):
         return self.game.getTerminal(self.board)
@@ -70,17 +69,21 @@ class MCTS():
         self.nnet = nnet
         self.args = args
 
-    def getActionProb(self, canonicalBoard, temp=1, do_print=-1):
+    def getActionProb(self, canonicalBoard, do_print=-1):
         return self.get_action_prob(canonicalBoard,temp, do_print)[0]
 
-    def get_action_prob(self, canonicalBoard, temp=1, do_print=-1):
-        root = Node(0)
-        play = Play(self.game, canonicalBoard)
+    def get_action_prob(self, board, player=1, root=None, do_print=-1):
 
-        self.evaluate(root, play)
+        play = Play(self.game, board, player=player)
+
+        root = root or Node(0)
+
+        if not root.expanded():
+            self.evaluate(root, play)
+
         self.add_exploration_noise(root)
 
-        for _ in range(self.args.numMCTSSims):
+        for _ in range(self.args.numMCTSSims - root.visit_count):
             node = root
             scratch_play = play.clone()
             search_path = [node]
@@ -95,7 +98,8 @@ class MCTS():
             
         if(do_print >= 0):
             root.print(limit=do_print)
-        return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(play.num_actions)], root
+            
+        return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(self.game.getActionSize())], root
 
     # Select the child with the highest UCB score.
 

@@ -45,28 +45,28 @@ class Coach():
         """
         trainExamples = []
         board = self.game.getInitBoard()
-        self.curPlayer = 1
+        player = 1
         episodeStep = 0
-
+        root = None
         while True:
             episodeStep += 1
-            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
+            canonicalBoard = self.game.getCanonicalForm(board, player)
 
-            pi = self.mcts.getActionProb(canonicalBoard)
+            pi, root = self.mcts.get_action_prob(canonicalBoard, root=root, player=player)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
-                trainExamples.append([b, self.curPlayer, p, None])
+                trainExamples.append([b, player, p, None])
 
             action = np.argmax(pi) if episodeStep > self.args.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
 
-            board, self.curPlayer = self.game.getNextState(
-                board, self.curPlayer, action)
+            board, player = self.game.getNextState(board, player, action)
+            root = root.children[action]
 
-            r = self.game.getGameEnded(board, self.curPlayer)
+            r = self.game.getGameEnded(board, player)
 
             if r != 0:
-                return [(x[0], x[2], r*((-1)**(x[1] != self.curPlayer))) for x in trainExamples], episodeStep
+                return [(x[0], x[2], r*((-1)**(x[1] != player))) for x in trainExamples], episodeStep
 
     def learn(self):
         """
