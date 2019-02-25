@@ -15,6 +15,7 @@ class Config(object):
       self.save_all_examples = True
       self.checkpoint = './temp/'
       self.load_model = True
+      self.load_examles = True
       self.load_folder_file = ('./save/','new_mcst_10.pth.tar')
       self.numItersForTrainExamplesHistory = 20
 
@@ -39,11 +40,13 @@ if __name__=="__main__":
     g = Game(4)
     nnet = nn(g)
 
-    #if args.load_model:
-    #    nnet.load_checkpoint(args.load_folder_file[0], args.load_folder_file[1])
+    if args.load_model:
+        nnet.load_checkpoint(*args.load_folder_file)
 
     c = Coach(g, nnet, args)
-    if args.load_model:
+
+    if args.load_examles:
         print("Load trainExamples from file")
         c.loadTrainExamples()
+        
     c.learn()
