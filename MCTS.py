@@ -7,8 +7,8 @@ from typing import List
 
 class Node(object):
 
-    def __init__(self, prior: float):
-        self.visit_count = 0
+    def __init__(self, prior: float = 1., visits=0):
+        self.visit_count = visits
         self.player = 1
         self.prior = prior
         self.value_sum = 0
@@ -69,14 +69,14 @@ class MCTS():
         self.nnet = nnet
         self.args = args
 
-    def getActionProb(self, canonicalBoard, do_print=-1):
-        return self.get_action_prob(canonicalBoard,temp, do_print)[0]
+    def getActionProb(self, canonicalBoard):
+        return self.get_action_prob(canonicalBoard)[0]
 
-    def get_action_prob(self, board, player=1, root=None, do_print=-1):
+    def get_action_prob(self, board, player=1, root=None):
 
         play = Play(self.game, board, player=player)
 
-        root = root or Node(0)
+        root = root or Node(visits = 1)
 
         if not root.expanded():
             self.evaluate(root, play)
@@ -94,12 +94,9 @@ class MCTS():
                 search_path.append(node)
             
             value = self.evaluate(node, scratch_play)
-            self.backpropagate(search_path, - value, - scratch_play.player)
-            
-        if(do_print >= 0):
-            root.print(limit=do_print)
-            
-        return [root.children[a].visit_count/root.visit_count if a in root.children else 0 for a in range(self.game.getActionSize())], root
+            self.backpropagate(search_path, value, scratch_play.player)
+                        
+        return [root.children[a].visit_count/(root.visit_count - 1) if a in root.children else 0 for a in range(self.game.getActionSize())], root
 
     # Select the child with the highest UCB score.
 
@@ -122,7 +119,9 @@ class MCTS():
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
+        # Node was played by the previous player
         node.player = - play.player
+
         if play.terminal():
             return play.terminal_value(node.player)
 
