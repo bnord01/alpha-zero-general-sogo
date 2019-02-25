@@ -55,8 +55,8 @@ class Coach():
                         
             canonicalBoard = self.game.getCanonicalForm(board, player)
             sym = self.game.getSymmetries(canonicalBoard, pi)
-            for b, p in sym:
-                trainExamples.append([b, player, p, None])
+            for brd, prb in sym:
+                trainExamples.append([brd, player, prb])
 
             action = np.argmax(pi) if episodeStep > self.args.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
