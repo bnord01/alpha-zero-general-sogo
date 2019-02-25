@@ -50,9 +50,9 @@ class Coach():
         root = None
         while True:
             episodeStep += 1
-
-            pi, root = self.mcts.get_action_prob(board, root=root, player=player)
             
+            pi, root = self.mcts.get_action_prob(board, root=root, player=player)
+                        
             canonicalBoard = self.game.getCanonicalForm(board, player)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
@@ -61,13 +61,12 @@ class Coach():
             action = np.argmax(pi) if episodeStep > self.args.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
 
-            board, player = self.game.getNextState(board, player, action)
-            root = root.children[action]
+            board, player = self.game.getNextState(board, player, action)            
+            root = root.children[action] if self.args.reuse_mcts_root else None
 
             r = self.game.getGameEnded(board, player)
-
             if r != 0:
-                return [(x[0], x[2], r*((-1)**(x[1] != player))) for x in trainExamples], episodeStep
+                return [(brd, prb, r if plyr == player else -r) for brd, plyr, prb in trainExamples], episodeStep
 
     def learn(self):
         """
