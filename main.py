@@ -20,7 +20,7 @@ class Config(object):
 
       self.num_sampling_moves = 10
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.num_mcts_sims = 100
+      self.num_mcts_sims = 514
       self.reuse_mcts_root = True
 
       self.arena_compare = 4
