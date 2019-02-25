@@ -22,12 +22,12 @@ class Coach():
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
         self.args = args
         self.mcts = MCTS(self.game, self.nnet, self.args)
-        # history of examples from args.numItersForTrainExamplesHistory latest iterations
-        self.trainExamplesHistory = []
-        self.skipFirstSelfPlay = False  # can be overriden in loadTrainExamples()
+        # history of examples from args.iteration_history_length latest iterations
+        self.train_example_history = []
+        self.skip_first_self_play = False  # can be overriden in loadTrainExamples()
         self.game_lengths = []
 
-    def executeEpisode(self):
+    def execute_episode(self):
         """
         This function executes one episode of self-play, starting with player 1.
         As the game is played, each turn is added as a training example to
@@ -77,30 +77,30 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.numIters+1):
+        for i in range(1, self.args.num_iterations+1):
             # bookkeeping
             print('------ITER ' + str(i) + '------')
             # examples of the iteration
-            if not self.skipFirstSelfPlay or i > 1:
+            if not self.skip_first_self_play or i > 1:
                 iterationTrainExamples = deque(
-                    [], maxlen=self.args.maxlenOfQueue)
+                    [], maxlen=self.args.episode_queue_length)
 
                 eps_lengths = []
                 eps_time = AverageMeter()
-                bar = Bar('Self Play', max=self.args.numEps)
+                bar = Bar('Self Play', max=self.args.num_episodes)
                 end = time.time()
 
-                for eps in range(self.args.numEps):
+                for eps in range(self.args.num_episodes):
                     # reset search tree
                     self.mcts = MCTS(self.game, self.nnet, self.args)
-                    examples, steps = self.executeEpisode()
+                    examples, steps = self.execute_episode()
                     iterationTrainExamples += examples
                     eps_lengths.append(steps)
 
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
                     end = time.time()
-                    bar.suffix = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=self.args.numEps, et=eps_time.avg,
+                    bar.suffix = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=self.args.num_episodes, et=eps_time.avg,
                                                                                                                total=bar.elapsed_td, eta=bar.eta_td)
                     bar.next()
                 bar.finish()
@@ -111,19 +111,19 @@ class Coach():
 
                 print(f"All episodes game lengths, min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
                 # save the iteration examples to the history
-                self.trainExamplesHistory.append(iterationTrainExamples)
+                self.train_example_history.append(iterationTrainExamples)
 
-            if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
+            if len(self.train_example_history) > self.args.iteration_history_length:
                 print("len(trainExamplesHistory) =", len(
-                    self.trainExamplesHistory), " => remove the oldest trainExamples")
-                self.trainExamplesHistory.pop(0)
+                    self.train_example_history), " => remove the oldest trainExamples")
+                self.train_example_history.pop(0)
             # backup history to a file
             # NB! the examples were collected using the model from the previous iteration, so (i-1)
             self.saveTrainExamples(i-1)
 
             # shuffle examlpes before training
             trainExamples = []
-            for e in self.trainExamplesHistory:
+            for e in self.train_example_history:
                 trainExamples.extend(e)
             shuffle(trainExamples)
 
@@ -138,13 +138,13 @@ class Coach():
             nmcts = MCTS(self.game, self.nnet, self.args)
 
             print('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
-                          lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x)),
+                          lambda x: np.argmax(nmcts.getActionProb(x)), self.game)
+            pwins, nwins, draws = arena.playGames(self.args.arena_compare)
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
                   (nwins, pwins, draws))
-            if pwins+nwins > 0 and float(nwins)/(pwins+nwins) < self.args.updateThreshold:
+            if pwins+nwins > 0 and float(nwins)/(pwins+nwins) < self.args.update_threshold:
                 print('REJECTING NEW MODEL')
                 self.nnet.save_checkpoint(
                     folder=self.args.checkpoint, filename='rejected_'+self.getCheckpointFile(i))
@@ -168,7 +168,7 @@ class Coach():
             iteration) if self.args.save_all_examples else "latest"
         filepath = os.path.join(folder, filename+".examples")
         with open(filepath, "wb+") as f:
-            Pickler(f).dump(self.trainExamplesHistory)
+            Pickler(f).dump(self.train_example_history)
         f.closed
 
     def loadTrainExamples(self):
@@ -183,7 +183,7 @@ class Coach():
         else:
             print("File with trainExamples found. Read it.")
             with open(examplesFile, "rb") as f:
-                self.trainExamplesHistory = Unpickler(f).load()
+                self.train_example_history = Unpickler(f).load()
             f.closed
             # examples based on the model were already collected (loaded)
-            # self.skipFirstSelfPlay = True
+            # self.skip_first_self_play = True

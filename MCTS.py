@@ -83,7 +83,7 @@ class MCTS():
 
         self.add_exploration_noise(root)
 
-        for _ in range(self.args.numMCTSSims - root.visit_count):
+        for _ in range(self.args.num_mcts_sims - root.visit_count):
             node = root
             scratch_play = play.clone()
             search_path = [node]
