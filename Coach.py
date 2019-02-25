@@ -50,9 +50,10 @@ class Coach():
         root = None
         while True:
             episodeStep += 1
-            canonicalBoard = self.game.getCanonicalForm(board, player)
 
-            pi, root = self.mcts.get_action_prob(canonicalBoard, root=root, player=player)
+            pi, root = self.mcts.get_action_prob(board, root=root, player=player)
+            
+            canonicalBoard = self.game.getCanonicalForm(board, player)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b, p in sym:
                 trainExamples.append([b, player, p, None])

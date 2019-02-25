@@ -32,8 +32,7 @@ class Node(object):
 
 class Play(object):
 
-    def __init__(self, game: Game, board: np.ndarray, actions=None, player=1):
-        self.actions = actions or []
+    def __init__(self, game: Game, board: np.ndarray, player=1):
         self.game = game
         self.board = board
         self.player = player
@@ -48,12 +47,10 @@ class Play(object):
         return self.game.getValidMoves(self.board, self.player)
 
     def clone(self):
-        return Play(self.game, self.board.copy(), list(self.actions), self.player)
+        return Play(self.game, self.board.copy(), self.player)
 
     def apply(self, action):
-        self.actions.append(action)
-        self.board, self.player = self.game.getNextState(
-            self.board, self.player, action)
+        self.board, self.player = self.game.getNextState(self.board, self.player, action)
 
     def canonical_board(self):
         return self.game.getCanonicalForm(self.board, self.player)
@@ -75,9 +72,8 @@ class MCTS():
     def get_action_prob(self, board, player=1, root=None):
 
         play = Play(self.game, board, player=player)
-
         root = root or Node(visits = 1)
-
+        
         if not root.expanded():
             self.evaluate(root, play)
 
