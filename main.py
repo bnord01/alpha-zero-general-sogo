@@ -7,7 +7,7 @@ from sogo.keras.NNet import NNetWrapper as nn
 class Config(object):
     def __init__(self):    
      
-      self.num_interations = 100
+      self.num_iterations = 100
       self.num_episodes = 100
       self.update_threshold = -0.05
       self.episode_queue_length = 200000
