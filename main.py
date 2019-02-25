@@ -8,14 +8,14 @@ class Config(object):
     def __init__(self):    
      
       self.num_iterations = 100
-      self.num_episodes = 50
-      self.update_threshold = 0.05
+      self.num_episodes = 100
+      self.update_threshold = -0.05
       self.episode_queue_length = 200000
       self.save_all_examples = True
       self.checkpoint = './temp/'
       self.load_model = True
       self.load_examles = True
-      self.load_folder_file = ('./save/','new_mcst_10.pth.tar')
+      self.load_folder_file = ('./save/','new_mcts_10.pth.tar')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
