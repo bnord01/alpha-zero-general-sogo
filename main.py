@@ -8,20 +8,20 @@ class Config(object):
     def __init__(self):    
      
       self.numIters = 100
-      self.numEps = 50
+      self.numEps = 100
       self.tempThreshold = 15
-      self.updateThreshold = 0.05
+      self.updateThreshold = -0.05
       self.maxlenOfQueue = 200000
       self.save_all_examples = True
       self.checkpoint = './temp/'
       self.load_model = True
       self.load_examles = True
-      self.load_folder_file = ('./save/','new_mcst_10.pth.tar')
+      self.load_folder_file = ('./save/','new_mcts_10.pth.tar')
       self.numItersForTrainExamplesHistory = 20
 
       self.num_sampling_moves = 10
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 100
+      self.numMCTSSims = 300
 
       self.arenaCompare = 5
 
