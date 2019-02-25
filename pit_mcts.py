@@ -24,7 +24,7 @@ class Config(object):
     def __init__(self):    
       self.num_sampling_moves = 30
       self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.numMCTSSims = 5000
+      self.num_mcts_sims = 5000
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
@@ -47,7 +47,7 @@ class NN(NeuralNet):
 
 nn = NN(g)
 mcts1 = MCTS(g, nn, Config())
-n1p = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
+n1p = lambda x: np.argmax(mcts1.getActionProb(x))
 
 arena = Arena.Arena(n1p, hp, g, display=display)
 print(arena.playGames(20, verbose=True))

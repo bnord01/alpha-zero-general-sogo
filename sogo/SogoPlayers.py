@@ -24,11 +24,14 @@ class HumanSogoPlayer():
     def __init__(self, game):
         self.game = game
 
+    def format(self, i):
+        return f"{int(i%self.game.n)} {int(i/self.game.n)}"
+
     def play(self, board):
         valid = self.game.getValidMoves(board, 1)
         for i in range(len(valid)):
             if valid[i]:
-                print(int(i/self.game.n), int(i%self.game.n))
+                print(self.format(i))
         while True: 
             try:
                 a = input().strip()

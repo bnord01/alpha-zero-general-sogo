@@ -21,29 +21,33 @@ g = SogoGame(4)
 
 # nnet players
 class Config(object):
-    def __init__(self):    
-      self.num_sampling_moves = 30
-      self.max_moves = 512  # for chess and shogi, 722 for Go.
-      self.num_mcts_sims = 2000
+    def __init__(self):
+        self.num_sampling_moves = 30
+        self.max_moves = 512  # for chess and shogi, 722 for Go.
+        self.num_mcts_sims = 2000
 
-      # Root prior exploration noise.
-      self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.
-      self.root_exploration_fraction = 0.0
+        # Root prior exploration noise.
+        # for chess, 0.03 for Go and 0.15 for shogi.
+        self.root_dirichlet_alpha = 0.3
+        self.root_exploration_fraction = 0.0
 
-      # UCB formula
-      self.pb_c_base = 19652
-      self.pb_c_init = 1.25
+        # UCB formula
+        self.pb_c_base = 19652
+        self.pb_c_init = 1.25
 
-      # Load model
+        # Load model
 
-      self.load_model = True
-      self.load_folder_file = ('./save/','new_mcts_10.pth.tar')
+        self.load_model = True
+        self.load_folder_file = ('./save/', 'new_mcts_10.pth.tar')
+
 
 class NN(NeuralNet):
-  def __init__(self,game:Game):
-    self.game = game
-  def predict(self, board):
-    return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
+    def __init__(self, game: Game):
+        self.game = game
+
+    def predict(self, board):
+        return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
+
 
 config = Config()
 # nn = NN(g)
@@ -54,26 +58,37 @@ mcts1 = MCTS(g, nn, config)
 hp = HumanSogoPlayer(g)
 
 root = None
-def advance_root(a): 
-  global root
-  if root:
-    root = root.children[a] if a in root.children else None
-  if root:
-    print('Root visits:', root.visit_count)
+
+
+def advance_root(a):
+    global root
+    if root:
+        root = root.children[a] if a in root.children else None
+    if root:
+        print('Root visits:', root.visit_count)
+        for a in range(g.getActionSize()):
+            if a in root.children:
+                print(f"{hp.format(a)} : {root.children[a].visit_count}")
+
 
 def human_player(board):
-  a = hp.play(board)
-  advance_root(a)
-  return a
+    a = hp.play(board)
+    advance_root(a)
+    return a
+
 
 def ai_player(board):
-  global root
-  with Timer("AI"):
-    pi, root = mcts1.get_action_prob(board, root=root)
-  a = np.argmax(pi)
-  advance_root(a)
-  return a
-  
-arena = Arena.Arena(ai_player, human_player, g, display=display)
-print(arena.playGames(20, verbose=True))
+    global root
+    with Timer("AI"):
+        pi, root = mcts1.get_action_prob(board, root=root)
+    a = np.argmax(pi)
+    advance_root(a)
+    return a
 
+
+p1, p2 = ai_player, human_player
+while True:
+    root = None
+    arena = Arena.Arena(p1, p2, g, display=display)
+    arena.playGames(2, verbose=True)
+    p1, p2 = p2, p1
