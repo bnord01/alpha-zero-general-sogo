@@ -25,22 +25,20 @@ class HumanSogoPlayer():
         self.game = game
 
     def play(self, board):
-        # display(board)
         valid = self.game.getValidMoves(board, 1)
         for i in range(len(valid)):
             if valid[i]:
                 print(int(i/self.game.n), int(i%self.game.n))
         while True: 
-            # Python 3.x
-            a = input()
-            # Python 2.x 
-            # a = raw_input()
-
-            x,y = [int(x) for x in a.split(' ')]
-            a = self.game.n * y + x
-            if valid[a]:
-                break
-            else:
-                print('Invalid')
+            try:
+                a = input().strip()
+                x, y = [int(x) for x in a.split(' ')]
+                a = self.game.n * y + x
+                if valid[a]:
+                    break
+                else:
+                    print(f"Invalid input '{a}'")         
+            except (ValueError, IndexError): 
+                print(f"Couldn't parse input '{a}'")
 
         return a
