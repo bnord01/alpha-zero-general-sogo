@@ -1,20 +1,24 @@
 from Coach import Coach
-#from othello.OthelloGame import OthelloGame as Game
-#from othello.tensorflow.NNet import NNetWrapper as nn
+
 from sogo.SogoGame import SogoGame as Game
 from sogo.keras.NNet import NNetWrapper as nn
+GAME_SIZE = 4
+
+# from tictactoe.TicTacToeGame import TicTacToeGame as Game
+# from tictactoe.keras.NNet import NNetWrapper as nn
+# GAME_SIZE = 3
 
 class Config(object):
     def __init__(self):    
      
-      self.num_iterations = 100
+      self.num_iterations = 1000
       self.num_episodes = 10
       self.episode_queue_length = 200000
       self.save_all_examples = True
       self.checkpoint = './temp/'
       self.load_model = True
-      self.load_examles = False
-      self.load_folder_file = ('./save/','new_mcts_15.pth.tar')
+      self.load_examles = True
+      self.load_folder_file = ('./save/','sogo1.pth.tar')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
@@ -33,7 +37,7 @@ class Config(object):
 args = Config()
 
 if __name__=="__main__":
-    g = Game(4)
+    g = Game(GAME_SIZE)
     nnet = nn(g)
 
     if args.load_model:
