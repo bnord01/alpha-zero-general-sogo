@@ -43,11 +43,11 @@ class NN(NeuralNet):
   def __init__(self,game:Game):
     self.game = game
   def predict(self, board):
-    return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
+    return np.ones(self.game.action_size())/self.game.action_size(), 0
 
 nn = NN(g)
 mcts1 = MCTS(g, nn, Config())
-n1p = lambda x: np.argmax(mcts1.getActionProb(x))
+n1p = lambda x: np.argmax(mcts1.get_action_prob(x)[0])
 
 arena = Arena.Arena(n1p, hp, g, display=display)
-print(arena.playGames(20, verbose=True))
+print(arena.play_games(20, verbose=True))

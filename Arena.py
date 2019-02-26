@@ -24,7 +24,7 @@ class Arena():
         self.display = display
         self.game_lengths = []
 
-    def playGame(self, verbose=False):
+    def play_game(self, verbose=False):
         """
         Executes one episode of a game.
 
@@ -35,57 +35,57 @@ class Arena():
                 draw result returned from the game that is neither 1, -1, nor 0.
         """
         players = [self.player2, None, self.player1]
-        curPlayer = 1
-        board = self.game.getInitBoard()
+        current_player = 1
+        board = self.game.init_board()
         it = 0
-        while self.game.getGameEnded(board, curPlayer)==0:
+        while self.game.terminal_value(board, current_player)==0:
             it+=1
             if verbose:
                 assert(self.display)
-                print("Turn ", str(it), "Player ", str(curPlayer))
+                print("Turn ", str(it), "Player ", str(current_player))
                 self.display(board)
-            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer))
+            action = players[current_player+1](self.game.canonical_board(board, current_player))
 
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer),1)
+            valids = self.game.valid_actions(self.game.canonical_board(board, current_player),1)
 
             if valids[action]==0:
                 print(action)
                 assert valids[action] >0
-            board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            board, current_player = self.game.next_state(board, current_player, action)
         if verbose:
             assert(self.display)
-            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
+            print("Game over: Turn ", str(it), "Result ", str(self.game.terminal_value(board, 1)))
             self.display(board)
         self.game_lengths.append(it)
-        return self.game.getGameEnded(board, 1)
+        return self.game.terminal_value(board, 1)
 
-    def playGames(self, num, verbose=False):
+    def play_games(self, num, verbose=False):
         """
         Plays num games in which player1 starts num/2 games and player2 starts
         num/2 games.
 
         Returns:
-            oneWon: games won by player1
-            twoWon: games won by player2
+            one_won: games won by player1
+            two_won: games won by player2
             draws:  games won by nobody
         """
         eps_time = AverageMeter()
-        bar = Bar('Arena.playGames', max=num)
+        bar = Bar('Arena.play_games', max=num)
         end = time.time()
         eps = 0
         maxeps = int(num)
         self.game_lengths = []
 
         num = int(num/2)
-        oneWon = 0
-        twoWon = 0
+        one_won = 0
+        two_won = 0
         draws = 0
         for _ in range(num):
-            gameResult = self.playGame(verbose=verbose)
-            if gameResult==1:
-                oneWon+=1
-            elif gameResult==-1:
-                twoWon+=1
+            game_result = self.play_game(verbose=verbose)
+            if game_result==1:
+                one_won+=1
+            elif game_result==-1:
+                two_won+=1
             else:
                 draws+=1
             # bookkeeping + plot progress
@@ -99,11 +99,11 @@ class Arena():
         self.player1, self.player2 = self.player2, self.player1
         
         for _ in range(num):
-            gameResult = self.playGame(verbose=verbose)
-            if gameResult==-1:
-                oneWon+=1                
-            elif gameResult==1:
-                twoWon+=1
+            game_result = self.play_game(verbose=verbose)
+            if game_result==-1:
+                one_won+=1                
+            elif game_result==1:
+                two_won+=1
             else:
                 draws+=1
             # bookkeeping + plot progress
@@ -117,4 +117,4 @@ class Arena():
         bar.finish()
         print(f"Arena game lengths,        min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
 
-        return oneWon, twoWon, draws
+        return one_won, two_won, draws

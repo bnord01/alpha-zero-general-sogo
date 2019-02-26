@@ -11,7 +11,7 @@ class Game():
     def __init__(self):
         pass
 
-    def getInitBoard(self):
+    def init_board(self):
         """
         Returns:
             startBoard: a representation of the board (ideally this is the form
@@ -19,21 +19,21 @@ class Game():
         """
         pass
 
-    def getBoardSize(self):
+    def board_size(self):
         """
         Returns:
             (x,y): a tuple of board dimensions
         """
         pass
 
-    def getActionSize(self):
+    def action_size(self):
         """
         Returns:
             actionSize: number of all possible actions
         """
         pass
 
-    def getNextState(self, board, player, action):
+    def next_state(self, board, player, action):
         """
         Input:
             board: current board
@@ -46,20 +46,20 @@ class Game():
         """
         pass
 
-    def getValidMoves(self, board, player):
+    def valid_actions(self, board, player):
         """
         Input:
             board: current board
             player: current player
 
         Returns:
-            validMoves: a binary vector of length self.getActionSize(), 1 for
+            validMoves: a binary vector of length self.action_size(), 1 for
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
         pass
 
-    def getGameEnded(self, board, player):
+    def terminal_value(self, board, player):
         """
         Input:
             board: current board
@@ -73,16 +73,16 @@ class Game():
         pass
 
     def getTerminal(self, board): 
-        return self.getGameEnded(board,1) != 0
+        return self.terminal_value(board,1) != 0
 
-    def getCanonicalForm(self, board, player):
+    def canonical_board(self, board, player):
         """
         Input:
             board: current board
             player: current player (1 or -1)
 
         Returns:
-            canonicalBoard: returns canonical form of board. The canonical form
+            canonical_board: returns canonical form of board. The canonical form
                             should be independent of player. For e.g. in chess,
                             the canonical form can be chosen to be from the pov
                             of white. When the player is white, we can return
@@ -91,11 +91,11 @@ class Game():
         """
         pass
 
-    def getSymmetries(self, board, pi):
+    def symmetries(self, board, pi):
         """
         Input:
             board: current board
-            pi: policy vector of size self.getActionSize()
+            pi: policy vector of size self.action_size()
 
         Returns:
             symmForms: a list of [(board,pi)] where each tuple is a symmetrical
@@ -104,7 +104,7 @@ class Game():
         """
         pass
 
-    def stringRepresentation(self, board):
+    def string_representation(self, board):
         """
         Input:
             board: current board

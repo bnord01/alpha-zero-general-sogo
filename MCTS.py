@@ -49,19 +49,19 @@ class Play(object):
         return self.game.getTerminal(self.board)
 
     def terminal_value(self):
-        return self.game.getGameEnded(self.board, self.player)
+        return self.game.terminal_value(self.board, self.player)
 
     def legal_actions(self):
-        return self.game.getValidMoves(self.board, self.player)
+        return self.game.valid_actions(self.board, self.player)
 
     def clone(self):
         return Play(self.game, self.board.copy(), self.player)
 
     def apply(self, action):
-        self.board, self.player = self.game.getNextState(self.board, self.player, action)
+        self.board, self.player = self.game.next_state(self.board, self.player, action)
 
     def canonical_board(self):
-        return self.game.getCanonicalForm(self.board, self.player)
+        return self.game.canonical_board(self.board, self.player)
 
 
 class MCTS():
@@ -73,9 +73,6 @@ class MCTS():
         self.game = game
         self.nnet = nnet
         self.args = args
-
-    def getActionProb(self, canonicalBoard):
-        return self.get_action_prob(canonicalBoard)[0]
 
     def get_action_prob(self, board, player=1, root=None):
 
@@ -99,7 +96,7 @@ class MCTS():
             value = self.evaluate(node, scratch_play)
             self.backpropagate(search_path, value, scratch_play.player)
                         
-        return [root.children[a].visit_count/(root.visit_count - 1) if a in root.children else 0 for a in range(self.game.getActionSize())], root
+        return [root.children[a].visit_count/(root.visit_count - 1) if a in root.children else 0 for a in range(self.game.action_size())], root
 
     # Select the child with the highest UCB score.
 

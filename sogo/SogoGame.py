@@ -15,19 +15,19 @@ class SogoGame(Game):
     def __init__(self, n=4):
         self.n = n
 
-    def getInitBoard(self):        
+    def init_board(self):        
         'Returns the initial state of the game.'
         return np.zeros((self.n, self.n, self.n, 2), dtype=np.int32)
 
-    def getBoardSize(self):
+    def board_size(self):
         # (a,b) tuple
         return (self.n, self.n, self.n)
 
-    def getActionSize(self):
+    def action_size(self):
         # return number of actions
         return self.n*self.n
 
-    def getNextState(self, board, player, action):
+    def next_state(self, board, player, action):
         'Performs a valid action and returns the resulting state.'
         new_board = np.copy(board)
         x = self.action_x(action)
@@ -37,10 +37,10 @@ class SogoGame(Game):
         new_board[x, y, z, pl] = 1
         return (new_board, -player)
 
-    def getValidMoves(self, board, player):
-        return np.array([self.valid_action(board,i) for i in range(0,self.getActionSize())])        
+    def valid_actions(self, board, player):
+        return np.array([self.valid_action(board,i) for i in range(0,self.action_size())])        
 
-    def getGameEnded(self, board, player):
+    def terminal_value(self, board, player):
         if evaluate(board[np.newaxis, :, :, :, 1]):
             return player
         if evaluate(board[np.newaxis, :, :, :, 0]):
@@ -49,7 +49,7 @@ class SogoGame(Game):
             return 1e-4
         return 0
 
-    def getCanonicalForm(self, board, player):
+    def canonical_board(self, board, player):
         if player == 1:
             return board
         else:
@@ -57,7 +57,7 @@ class SogoGame(Game):
             new_board[:,:,:,0],new_board[:,:,:,1] = new_board[:,:,:,1],new_board[:,:,:,0].copy()            
             return new_board
 
-    def getSymmetries(self, board, pi):
+    def symmetries(self, board, pi):
         pi_board = np.reshape(pi, (self.n, self.n), order='F')
         l = []
         for i in range(1, 5):
@@ -70,7 +70,7 @@ class SogoGame(Game):
                 l += [(newB, np.ravel(newPi, order='F'))]
         return l
 
-    def stringRepresentation(self, board):        
+    def string_representation(self, board):        
         # 8x8 numpy array (canonical board)        
         return board.tostring()
 

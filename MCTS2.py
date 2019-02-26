@@ -16,35 +16,28 @@ class MCTS2():
         self.Ns = {}        # stores #times board s was visited
         self.Ps = {}        # stores initial policy (returned by neural net)
 
-        self.Es = {}        # stores game.getGameEnded ended for board s
-        self.Vs = {}        # stores game.getValidMoves for board s
+        self.Es = {}        # stores game.terminal_value ended for board s
+        self.Vs = {}        # stores game.valid_actions for board s
 
-    def getActionProb(self, canonicalBoard, temp=1):
+    def get_action_prob(self, canonical_board):
         """
         This function performs numMCTSSims simulations of MCTS starting from
-        canonicalBoard.
+        canonical_board.
         Returns:
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         for _ in range(self.args.numMCTSSims):
-            self.search(canonicalBoard)
+            self.search(canonical_board)
 
-        s = self.game.stringRepresentation(canonicalBoard)
-        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
-
-        if temp==0:
-            bestA = np.argmax(counts)
-            probs = [0]*len(counts)
-            probs[bestA]=1
-            return probs
-
-        counts = [x**(1./temp) for x in counts]
+        s = self.game.string_representation(canonical_board)
+        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.action_size())]
+      
         probs = [x/float(sum(counts)) for x in counts]
-        return probs
+        return probs, None
 
 
-    def search(self, canonicalBoard):
+    def search(self, canonical_board):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -58,21 +51,21 @@ class MCTS2():
         state. This is done since v is in [-1,1] and if v is the value of a
         state for the current player, then its value is -v for the other player.
         Returns:
-            v: the negative of the value of the current canonicalBoard
+            v: the negative of the value of the current canonical_board
         """
 
-        s = self.game.stringRepresentation(canonicalBoard)
+        s = self.game.string_representation(canonical_board)
 
         if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
+            self.Es[s] = self.game.terminal_value(canonical_board, 1)
         if self.Es[s]!=0:
             # terminal node
             return -self.Es[s]
 
         if s not in self.Ps:
             # leaf node
-            self.Ps[s], v = self.nnet.predict(canonicalBoard)
-            valids = self.game.getValidMoves(canonicalBoard, 1)
+            self.Ps[s], v = self.nnet.predict(canonical_board)
+            valids = self.game.valid_actions(canonical_board, 1)
             self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -92,10 +85,10 @@ class MCTS2():
 
         valids = self.Vs[s]
 
-        _ , a = max((self.ucb_score(s,action), action) for action in range(self.game.getActionSize()) if valids[action])
+        _ , a = max((self.ucb_score(s,action), action) for action in range(self.game.action_size()) if valids[action])
 
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
-        next_s = self.game.getCanonicalForm(next_s, next_player)
+        next_s, next_player = self.game.next_state(canonical_board, 1, a)
+        next_s = self.game.canonical_board(next_s, next_player)
 
         v = self.search(next_s)
 

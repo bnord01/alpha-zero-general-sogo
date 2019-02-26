@@ -43,7 +43,7 @@ if __name__=="__main__":
     c = Coach(g, nnet, args)
 
     if args.load_examles:
-        print("Load trainExamples from ", args.load_folder_file[0], args.load_folder_file[1]+".examples")
-        c.loadTrainExamples()
+        print("Load train_examples from ", args.load_folder_file[0], args.load_folder_file[1]+".examples")
+        c.loadtrain_examples()
         
     c.learn()

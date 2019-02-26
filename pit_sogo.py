@@ -46,7 +46,7 @@ class NN(NeuralNet):
         self.game = game
 
     def predict(self, board):
-        return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
+        return np.ones(self.game.action_size())/self.game.action_size(), 0
 
 
 config = Config()
@@ -66,7 +66,7 @@ def advance_root(a):
         root = root.children[a] if a in root.children else None
     if root:
         print('Root visits:', root.visit_count)
-        for a in range(g.getActionSize()):
+        for a in range(g.action_size()):
             if a in root.children:
                 print(f"{hp.format(a)} : {root.children[a].visit_count}")
 
@@ -90,5 +90,5 @@ p1, p2 = ai_player, human_player
 while True:
     root = None
     arena = Arena.Arena(p1, p2, g, display=display)
-    arena.playGames(2, verbose=True)
+    arena.play_games(2, verbose=True)
     p1, p2 = p2, p1

@@ -90,8 +90,8 @@ class SogoNNet():
 
     def __init__(self, game, args):
         # game params
-        self.board_x, self.board_y, self.board_z = game.getBoardSize()
-        self.action_size = game.getActionSize()
+        self.board_x, self.board_y, self.board_z = game.board_size()
+        self.action_size = game.action_size()
         self.args = args
 
         self.input_boards = Input(

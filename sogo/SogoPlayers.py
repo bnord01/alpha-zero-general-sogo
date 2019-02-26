@@ -13,10 +13,10 @@ class RandomPlayer():
         self.game = game
 
     def play(self, board):
-        a = np.random.randint(self.game.getActionSize())
-        valids = self.game.getValidMoves(board, 1)
+        a = np.random.randint(self.game.action_size())
+        valids = self.game.valid_actions(board, 1)
         while valids[a]!=1:
-            a = np.random.randint(self.game.getActionSize())
+            a = np.random.randint(self.game.action_size())
         return a
 
 
@@ -28,7 +28,7 @@ class HumanSogoPlayer():
         return f"{int(i%self.game.n)} {int(i/self.game.n)}"
 
     def play(self, board):
-        valid = self.game.getValidMoves(board, 1)
+        valid = self.game.valid_actions(board, 1)
         for i in range(len(valid)):
             if valid[i]:
                 print(self.format(i))

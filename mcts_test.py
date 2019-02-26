@@ -10,28 +10,28 @@ class NN(NeuralNet):
   def __init__(self,game:Game):
     self.game = game
   def predict(self, board):
-    return np.ones(self.game.getActionSize())/self.game.getActionSize(), 0
+    return np.ones(self.game.action_size())/self.game.action_size(), 0
 
 
 class TestGame(Game):
-  def getInitBoard(self):
+  def init_board(self):
     return np.zeros(3)
 
-  def getBoardSize(self):
+  def board_size(self):
     return (3,)
 
-  def getActionSize(self):
+  def action_size(self):
     return 3
 
-  def getNextState(self, board, player, action):
+  def next_state(self, board, player, action):
     b = board.copy()
     b[action] = b[action] + 1
     return b, -player
 
-  def getValidMoves(self, board, player):
+  def valid_actions(self, board, player):
     return range(3)
 
-  def getGameEnded(self, board, player):
+  def terminal_value(self, board, player):
     if board[1] > 0:
       return player
     if board[2] > 0:
@@ -41,7 +41,7 @@ class TestGame(Game):
   def getTerminal(self, board): 
     return sum(board) > 3 or board[1] > 0 or board[2] > 0
 
-  def getCanonicalForm(self, board, player):
+  def canonical_board(self, board, player):
     if player == 1:
       return board
     board = board.copy()
@@ -50,7 +50,7 @@ class TestGame(Game):
     board[2] = temp
     return board
   
-  def stringRepresentation(self, board):        
+  def string_representation(self, board):        
     return board.tostring()
 
 
@@ -77,10 +77,10 @@ from tictactoe.TicTacToeGame import TicTacToeGame
 
 game = TicTacToeGame(3)
 config = Config()
-board, _ = game.getNextState(game.getInitBoard(),-1,0)
-board, _ = game.getNextState(board,-1,4)
-board, _ = game.getNextState(board,1,3)
-board, _ = game.getNextState(board,1,6)
+board, _ = game.next_state(game.init_board(),-1,0)
+board, _ = game.next_state(board,-1,4)
+board, _ = game.next_state(board,1,3)
+board, _ = game.next_state(board,1,6)
 
 
 #from tictactoe.keras.NNet import NNetWrapper as NNet
@@ -95,12 +95,12 @@ from timeit import default_timer as timer
 #end = timer()
 #print(f"With neural net: {end-start}")
 
-board = game.getInitBoard()
+board = game.init_board()
 
-board, _ = game.getNextState(game.getInitBoard(),-1,1)
-board, _ = game.getNextState(board,1,4)
+board, _ = game.next_state(game.init_board(),-1,1)
+board, _ = game.next_state(board,1,4)
 
-board, _ = game.getNextState(game.getInitBoard(),-1,4)
+board, _ = game.next_state(game.init_board(),-1,4)
 
 
 nn2 = NN(game)
@@ -109,7 +109,3 @@ start = timer()
 print(mcts2.get_action_prob(board))
 end = timer()
 print(f"With dummy net: {end-start}")
-
-
-#mcts2 = MCTS2(game,nn,config)
-#print(mcts2.getActionProb(game.getInitBoard()))
