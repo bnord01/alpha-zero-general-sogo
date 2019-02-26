@@ -18,7 +18,7 @@ class Config(object):
       self.checkpoint = './temp/'
       self.load_model = True
       self.load_examles = True
-      self.load_folder_file = ('./save/','sogo1.h5')
+      self.load_folder_file = ('./temp/','latest.h5')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10

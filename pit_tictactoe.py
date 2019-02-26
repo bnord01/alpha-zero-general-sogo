@@ -1,11 +1,11 @@
 import Arena
 from MCTS import MCTS
-from sogo.SogoGame import SogoGame, display
-from sogo.SogoPlayers import HumanSogoPlayer
+from tictactoe.TicTacToeGame import TicTacToeGame, display
+from tictactoe.TicTacToePlayers import HumanTicTacToePlayer
 
 import numpy as np
 from NeuralNet import NeuralNet
-from sogo.keras.NNet import NNetWrapper as NNet
+from tictactoe.keras.NNet import NNetWrapper as NNet
 
 from Game import Game
 
@@ -16,7 +16,7 @@ use this script to play any two agents against each other, or play manually with
 any agent.
 """
 
-g = SogoGame(4)
+g = TicTacToeGame(3)
 
 
 # nnet players
@@ -24,7 +24,7 @@ class Config(object):
     def __init__(self):
         self.num_sampling_moves = 30
         self.max_moves = 512  # for chess and shogi, 722 for Go.
-        self.num_mcts_sims = 30
+        self.num_mcts_sims = 20
 
         # Root prior exploration noise.
         # for chess, 0.03 for Go and 0.15 for shogi.
@@ -38,7 +38,7 @@ class Config(object):
         # Load model
 
         self.load_model = True
-        self.load_folder_file = ('./save/', 'latest.h5')
+        self.load_folder_file = ('./temp/', 'checkpoint_2.pth.tar')
 
 
 class NN(NeuralNet):
@@ -55,7 +55,7 @@ config = Config()
 nn = NNet(g)
 nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
-hp = HumanSogoPlayer(g)
+hp = HumanTicTacToePlayer(g)
 
 root = None
 
@@ -64,11 +64,6 @@ def advance_root(a):
     global root
     if root:
         root = root.children[a] if a in root.children else None
-    if root:
-        print('Root visits:', root.visit_count)
-        for a in range(g.action_size()):
-            if a in root.children:
-                print(f"{hp.format(a)} : {root.children[a].visit_count}")
 
 
 def human_player(board):
