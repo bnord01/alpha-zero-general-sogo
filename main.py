@@ -14,11 +14,11 @@ class Config(object):
       self.num_iterations = 1000
       self.num_episodes = 10
       self.episode_queue_length = 200000
-      self.save_all_examples = True
+      self.save_all_examples = False
       self.checkpoint = './temp/'
       self.load_model = True
       self.load_examles = True
-      self.load_folder_file = ('./save/','sogo1.pth.tar')
+      self.load_folder_file = ('./save/','sogo1.h5')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10

@@ -52,13 +52,13 @@ class NNetWrapper(NeuralNet):
         pi, v = self.nnet.model.predict(board)
         return pi[0], v[0]
 
-    def save_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+    def save_checkpoint(self, folder='checkpoint', filename='checkpoint.h5'):
         filepath = os.path.join(folder, filename)
         if not os.path.exists(folder):
             os.mkdir(folder)
         self.nnet.model.save_weights(filepath)
 
-    def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+    def load_checkpoint(self, folder='checkpoint', filename='checkpoint.h5'):
         filepath = os.path.join(folder, filename)
         if not os.path.exists(filepath):
             raise Exception(f"No model in path '{filepath}'")
