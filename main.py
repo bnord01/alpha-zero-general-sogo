@@ -15,7 +15,7 @@ class Config(object):
       self.checkpoint = './temp/'
       self.load_model = True
       self.load_examles = True
-      self.load_folder_file = ('./save/','new_mcts_10.pth.tar')
+      self.load_folder_file = ('./save/','new_mcts_15.pth.tar')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
