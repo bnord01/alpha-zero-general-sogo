@@ -9,7 +9,6 @@ class Config(object):
      
       self.num_iterations = 100
       self.num_episodes = 10
-      self.update_threshold = -0.05
       self.episode_queue_length = 200000
       self.save_all_examples = True
       self.checkpoint = './temp/'
@@ -19,11 +18,8 @@ class Config(object):
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
-      self.max_moves = 512  # for chess and shogi, 722 for Go.
       self.num_mcts_sims = 514
       self.reuse_mcts_root = True
-
-      self.arena_compare = 4
 
       # Root prior exploration noise.
       self.root_dirichlet_alpha = 0.3  # for chess, 0.03 for Go and 0.15 for shogi.

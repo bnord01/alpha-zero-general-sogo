@@ -50,9 +50,10 @@ class Coach():
         root = None
         while True:
             episodeStep += 1
-            
-            pi, root = self.mcts.get_action_prob(board, root=root, player=player)
-                        
+
+            pi, root = self.mcts.get_action_prob(
+                board, root=root, player=player)
+
             canonicalBoard = self.game.getCanonicalForm(board, player)
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for brd, prb in sym:
@@ -61,7 +62,7 @@ class Coach():
             action = np.argmax(pi) if episodeStep > self.args.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
 
-            board, player = self.game.getNextState(board, player, action)            
+            board, player = self.game.getNextState(board, player, action)
             root = root.children[action] if self.args.reuse_mcts_root else None
 
             r = self.game.getGameEnded(board, player)
@@ -105,11 +106,13 @@ class Coach():
                     bar.next()
                 bar.finish()
 
-                print(f"This episode game lengths, min:{np.min(eps_lengths):0.0f}, avg:{np.average(eps_lengths):0.2f}, max:{np.max(eps_lengths):0.0f}, std:{np.std(eps_lengths):0.2f}")
+                print(
+                    f"This episode game lengths, min:{np.min(eps_lengths):0.0f}, avg:{np.average(eps_lengths):0.2f}, max:{np.max(eps_lengths):0.0f}, std:{np.std(eps_lengths):0.2f}")
 
                 self.game_lengths += eps_lengths
 
-                print(f"All episodes game lengths, min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
+                print(
+                    f"All episodes game lengths, min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
                 # save the iteration examples to the history
                 self.train_example_history.append(iterationTrainExamples)
 
@@ -127,35 +130,11 @@ class Coach():
                 trainExamples.extend(e)
             shuffle(trainExamples)
 
-            # training new network, keeping a copy of the old one
-            self.nnet.save_checkpoint(
-                folder=self.args.checkpoint, filename='temp.pth.tar')
-            self.pnet.load_checkpoint(
-                folder=self.args.checkpoint, filename='temp.pth.tar')
-            pmcts = MCTS(self.game, self.pnet, self.args)
-
+            # training new network
             self.nnet.train(trainExamples)
-            nmcts = MCTS(self.game, self.nnet, self.args)
 
-            print('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x)),
-                          lambda x: np.argmax(nmcts.getActionProb(x)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arena_compare)
-
-            print('NEW/PREV WINS : %d / %d ; DRAWS : %d' %
-                  (nwins, pwins, draws))
-            if pwins+nwins > 0 and float(nwins)/(pwins+nwins) < self.args.update_threshold:
-                print('REJECTING NEW MODEL')
-                self.nnet.save_checkpoint(
-                    folder=self.args.checkpoint, filename='rejected_'+self.getCheckpointFile(i))
-                self.nnet.load_checkpoint(
-                    folder=self.args.checkpoint, filename='temp.pth.tar')
-            else:
-                print('ACCEPTING NEW MODEL')
-                self.nnet.save_checkpoint(
-                    folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                self.nnet.save_checkpoint(
-                    folder=self.args.checkpoint, filename='best.pth.tar')
+            self.nnet.save_checkpoint(
+                folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
 
     def getCheckpointFile(self, iteration):
         return 'checkpoint_' + str(iteration) + '.pth.tar'
