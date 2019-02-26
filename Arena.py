@@ -92,8 +92,7 @@ class Arena():
             eps += 1
             eps_time.update(time.time() - end)
             end = time.time()
-            bar.suffix  = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=maxeps, et=eps_time.avg,
-                                                                                                       total=bar.elapsed_td, eta=bar.eta_td)
+            bar.suffix  = f'({eps}/{maxeps}) | Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | Standig: {one_won}:{two_won} ({draws} draws)'
             bar.next()
 
         self.player1, self.player2 = self.player2, self.player1
@@ -110,8 +109,7 @@ class Arena():
             eps += 1
             eps_time.update(time.time() - end)
             end = time.time()
-            bar.suffix  = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=maxeps, et=eps_time.avg,
-                                                                                                       total=bar.elapsed_td, eta=bar.eta_td)
+            bar.suffix  = f'({eps}/{maxeps}) Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | Standig: {one_won}:{two_won} ({draws} draws)'
             bar.next()
             
         bar.finish()

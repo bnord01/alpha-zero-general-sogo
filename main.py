@@ -16,13 +16,13 @@ class Config(object):
       self.episode_queue_length = 200000
       self.save_all_examples = False
       self.checkpoint = './temp/'
-      self.load_model = True
-      self.load_examles = True
+      self.load_model = False
+      self.load_examles = False
       self.load_folder_file = ('./temp/','latest.h5')
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
-      self.num_mcts_sims = 514
+      self.num_mcts_sims = 3*16
       self.reuse_mcts_root = True
 
       # Root prior exploration noise.

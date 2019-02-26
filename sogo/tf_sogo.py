@@ -83,14 +83,14 @@ def antidiaggreater3(x):
     x1 = K.any(x1)
 
     x2 = x * tf.constant(ANTIDIAG13)
-    x2 = K.sum(x2, axis=2)
+    x2 = K.sum(x2, axis=1)
     x2 = K.sum(x2, axis=2)
     x2 = K.greater(x2, 3)
     x2 = K.any(x2)
 
     x3 = x * tf.constant(ANTIDIAG12)
-    x3 = K.sum(x3, axis=2)
-    x3 = K.sum(x3, axis=2)
+    x3 = K.sum(x3, axis=1)
+    x3 = K.sum(x3, axis=1)
     x3 = K.greater(x3, 3)
     x3 = K.any(x3)
 
@@ -113,7 +113,7 @@ def fulldiaggreater3(x):
 
 
 def is_winning(x):
-    return K.any(K.stack([greater3(x), diaggreater3(x), fulldiaggreater3(x)]))
+    return K.any(K.stack([greater3(x), diaggreater3(x), antidiaggreater3(x), fulldiaggreater3(x)]))
 
 
 INPUTS = Input(shape=(4, 4, 4), dtype='int32')
