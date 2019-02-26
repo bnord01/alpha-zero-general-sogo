@@ -8,7 +8,7 @@ class Config(object):
     def __init__(self):    
      
       self.num_iterations = 100
-      self.num_episodes = 100
+      self.num_episodes = 10
       self.update_threshold = -0.05
       self.episode_queue_length = 200000
       self.save_all_examples = True
@@ -41,12 +41,13 @@ if __name__=="__main__":
     nnet = nn(g)
 
     if args.load_model:
+        print("Loading model from ", *args.load_folder_file)
         nnet.load_checkpoint(*args.load_folder_file)
 
     c = Coach(g, nnet, args)
 
     if args.load_examles:
-        print("Load trainExamples from file")
+        print("Load trainExamples from ", args.load_folder_file[0], args.load_folder_file[1]+".examples")
         c.loadTrainExamples()
         
     c.learn()
