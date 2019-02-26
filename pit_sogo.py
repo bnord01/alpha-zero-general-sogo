@@ -24,7 +24,7 @@ class Config(object):
     def __init__(self):
         self.num_sampling_moves = 30
         self.max_moves = 512  # for chess and shogi, 722 for Go.
-        self.num_mcts_sims = 2000
+        self.num_mcts_sims = 514
 
         # Root prior exploration noise.
         # for chess, 0.03 for Go and 0.15 for shogi.
@@ -38,7 +38,7 @@ class Config(object):
         # Load model
 
         self.load_model = True
-        self.load_folder_file = ('./save/', 'new_mcts_10.pth.tar')
+        self.load_folder_file = ('./save/', 'new_mcts_15.pth.tar')
 
 
 class NN(NeuralNet):

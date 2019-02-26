@@ -7,9 +7,9 @@ from typing import List
 
 class Node(object):
 
-    def __init__(self, prior: float = 1., visits=0):
+    def __init__(self, prior: float = 1., player=1,  visits=0):
         self.visit_count = visits
-        self.player = 1
+        self.player = player # the Player who played this node
         self.prior = prior
         self.value_sum = 0
         self.children = {}
@@ -22,12 +22,20 @@ class Node(object):
             return 0
         return self.value_sum / self.visit_count
 
-    def print(self, limit=-1, indent='', action=''):
+    def print(self, limit=-1, indent='', action='',filter=None):
         if limit == 0 or self.visit_count <= 0:
             return
         print(f"{indent}{action} -> v:{float(self.value()):1.2} n:{self.visit_count} p:{float(self.prior):1.2} tp:{self.player}")
         for a, child in self.children.items():
-            child.print(limit=limit-1, indent=indent+'  ', action=str(a))
+            if filter == None:
+                child.print(limit=limit-1, indent=indent+'  ', action=str(a))            
+            elif a in filter:
+                if isinstance(filter, list):
+                    child.print(limit=1, indent=indent+'  ', action=str(a))
+                else:
+                    child.print(limit=limit-1, indent=indent+'  ', action=str(a), filter=filter[a])
+                    
+        
 
 
 class Play(object):
@@ -40,8 +48,8 @@ class Play(object):
     def terminal(self):
         return self.game.getTerminal(self.board)
 
-    def terminal_value(self, player):
-        return self.game.getGameEnded(self.board, player)
+    def terminal_value(self):
+        return self.game.getGameEnded(self.board, self.player)
 
     def legal_actions(self):
         return self.game.getValidMoves(self.board, self.player)
@@ -72,7 +80,7 @@ class MCTS():
     def get_action_prob(self, board, player=1, root=None):
 
         play = Play(self.game, board, player=player)
-        root = root or Node(visits = 1)
+        root = root or Node(player=-player, visits = 1)
         
         if not root.expanded():
             self.evaluate(root, play)
@@ -83,7 +91,6 @@ class MCTS():
             node = root
             scratch_play = play.clone()
             search_path = [node]
-            
             while node.expanded():
                 action, node = self.select_child(node)
                 scratch_play.apply(action)
@@ -115,14 +122,19 @@ class MCTS():
 
     # We use the neural network to obtain a value and policy prediction.
     def evaluate(self, node: Node, play: Play):
-        # Node was played by the previous player
-        node.player = - play.player
+        """
+        Expands the `node`, initialising the children with the prior 
+        and sets the player of `node` to the previous player who played
+        `node`. 
+        
+        Returns:
+            The (estimated) value of the game for the player who will play from `node`.
+        """        
 
         if play.terminal():
-            return play.terminal_value(node.player)
+            return play.terminal_value()
 
         pi, value = self.nnet.predict(play.canonical_board())
-        value = value * node.player
 
         # Expand the node.
         legal = play.legal_actions()
@@ -130,15 +142,15 @@ class MCTS():
         pi = pi / sum(pi)
         for action in range(len(pi)):
             if legal[action] == 1:
-                node.children[action] = Node(pi[action])
+                node.children[action] = Node(pi[action], play.player)
         return value
 
     # At the end of a simulation, we propagate the evaluation all the way up the
     # tree to the root.
 
-    def backpropagate(self, search_path: List[Node], value: float, last_player):
+    def backpropagate(self, search_path: List[Node], value: float, player_to_value):
         for node in search_path:
-            node.value_sum += value * node.player * last_player
+            node.value_sum += value * node.player * player_to_value
             node.visit_count += 1
 
     # At the start of each search, we add dirichlet noise to the prior of the root

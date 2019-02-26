@@ -41,9 +41,9 @@ class SogoGame(Game):
         return np.array([self.valid_action(board,i) for i in range(0,self.getActionSize())])        
 
     def getGameEnded(self, board, player):
-        if evaluate(board[np.newaxis, :, :, :, 0]):
-            return player
         if evaluate(board[np.newaxis, :, :, :, 1]):
+            return player
+        if evaluate(board[np.newaxis, :, :, :, 0]):
             return -player
         if np.sum(board) == self.n ** 3:
             return 1e-4
@@ -104,9 +104,9 @@ def display(board):
             print(y, "|",end="")    # print the row #
             for x in range(nx):
                 if board[x,y,z,0]:
-                    print("X ", end="")
-                elif board[x,y,z,1]:
                     print("O ", end="")
+                elif board[x,y,z,1]:
+                    print("X ", end="")
                 else:
                     if x==nx:
                         print("-",end="")
