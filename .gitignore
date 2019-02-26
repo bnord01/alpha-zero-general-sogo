@@ -4,6 +4,14 @@
 /temp/
 /.project
 /.pydevproject
+/logs/
+/save/
+/.vscode/
+/.ipynb_checkpoints/
+
+*.tar
+*.h5
+*.examples
 
 # checkpoint
 checkpoints/

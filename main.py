@@ -22,7 +22,7 @@ class Config(object):
       self.iteration_history_length = 20
 
       self.num_sampling_moves = 10
-      self.num_mcts_sims = 5*16
+      self.num_mcts_sims = 516
       self.reuse_mcts_root = True
 
       # Root prior exploration noise.
