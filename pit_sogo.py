@@ -36,7 +36,7 @@ class Config(object):
         # Load model
 
         self.load_model = True
-        self.load_folder_file = ('./save/', 'mixed2.h5')
+        self.load_folder_file = ('./save/', 'mixed3.h5')
 
 
 class NN(NeuralNet):
@@ -57,7 +57,7 @@ hp = HumanSogoPlayer(g)
 
 def human_player(board):
     pi, v = nn.predict(board)
-    print(f"NNet: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)} value: {v}")
+    print(f"NNet: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)} value: {v}, prefered move: {hp.format(np.argmax(pi))}")
 
     a = hp.play(board)
     return a
@@ -65,12 +65,13 @@ def human_player(board):
 
 def ai_player(board):
     pi, v = nn.predict(board)
-    print(f"NNet: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)} value: {v}")
+    print(f"NNet: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)} value: {v}, prefered move: {hp.format(np.argmax(pi))}")
 
     with Timer("AI"):
         pi, _ = mcts1.get_action_prob(board)
-    print(f"MCTS: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)}")
     a = np.argmax(pi)
+    print(f"MCTS: {np.array2string(np.array(pi), precision=2, separator=',', suppress_small=True, max_line_width=200)} selected move: {hp.format(a)}")
+
     return a
 
 
