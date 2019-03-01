@@ -73,6 +73,7 @@ class Config(object):
       self.load_model = True
       self.load_folder_file = ('./models/','checkpoint_25.pth.tar')
 
+
 from tictactoe.TicTacToeGame import TicTacToeGame
 
 game = TicTacToeGame(3)

@@ -39,6 +39,7 @@ class Config(object):
       self.load_model = True
       self.load_folder_file = ('./models/','checkpoint_25.pth.tar')
 
+
 class NN(NeuralNet):
   def __init__(self,game:Game):
     self.game = game

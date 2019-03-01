@@ -13,16 +13,15 @@ from random import shuffle
 class Coach():
     """
     This class executes the self-play + learning. It uses the functions defined
-    in Game and NeuralNet. args are specified in main.py.
+    in Game and NeuralNet. config are specified in main.py.
     """
 
-    def __init__(self, game, nnet, args):
+    def __init__(self, game, nnet, config):
         self.game = game
         self.nnet = nnet
-        self.pnet = self.nnet.__class__(self.game)  # the competitor network
-        self.args = args
-        self.mcts = MCTS(self.game, self.nnet, self.args)
-        # history of examples from args.iteration_history_length latest iterations
+        self.config = config
+        self.mcts = MCTS(self.game, self.nnet, self.config)
+        # history of examples from config.iteration_history_length latest iterations
         self.train_example_history = []
         self.skip_first_self_play = False  # can be overriden in loadtrain_examples()
         self.game_lengths = []
@@ -59,11 +58,11 @@ class Coach():
             for brd, prb in sym:
                 train_examples.append([brd, player, prb])
 
-            action = np.argmax(pi) if episode_step > self.args.num_sampling_moves \
+            action = np.argmax(pi) if episode_step > self.config.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
 
             board, player = self.game.next_state(board, player, action)
-            root = root.children[action] if self.args.reuse_mcts_root else None
+            root = root.children[action] if self.config.reuse_mcts_root else None
 
             r = self.game.terminal_value(board, player)
             if r != 0:
@@ -78,22 +77,22 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.num_iterations+1):
+        for i in range(1, self.config.num_iterations+1):
             # bookkeeping
             print('------ITER ' + str(i) + '------')
             # examples of the iteration
             if not self.skip_first_self_play or i > 1:
                 iteration_train_examples = deque(
-                    [], maxlen=self.args.episode_queue_length)
+                    [], maxlen=self.config.episode_queue_length)
 
                 eps_lengths = []
                 eps_time = AverageMeter()
-                bar = Bar('Self Play', max=self.args.num_episodes)
+                bar = Bar('Self Play', max=self.config.num_episodes)
                 end = time.time()
 
-                for eps in range(self.args.num_episodes):
+                for eps in range(self.config.num_episodes):
                     # reset search tree
-                    self.mcts = MCTS(self.game, self.nnet, self.args)
+                    self.mcts = MCTS(self.game, self.nnet, self.config)
                     examples, steps = self.execute_episode()
                     iteration_train_examples += examples
                     eps_lengths.append(steps)
@@ -101,7 +100,7 @@ class Coach():
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
                     end = time.time()
-                    bar.suffix = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=self.args.num_episodes, et=eps_time.avg,
+                    bar.suffix = '({eps}/{maxeps}) Eps Time: {et:.3f}s | Total: {total:} | ETA: {eta:}'.format(eps=eps+1, maxeps=self.config.num_episodes, et=eps_time.avg,
                                                                                                                total=bar.elapsed_td, eta=bar.eta_td)
                     bar.next()
                 bar.finish()
@@ -116,7 +115,7 @@ class Coach():
                 # save the iteration examples to the history
                 self.train_example_history.append(iteration_train_examples)
 
-            if len(self.train_example_history) > self.args.iteration_history_length:
+            if len(self.train_example_history) > self.config.iteration_history_length:
                 print("len(train_example_history) =", len(
                     self.train_example_history), " => remove the oldest train_examples")
                 self.train_example_history.pop(0)
@@ -134,19 +133,19 @@ class Coach():
             self.nnet.train(train_examples)
 
             self.nnet.save_checkpoint(
-                folder=self.args.checkpoint, filename="latest.h5")
+                folder=self.config.checkpoint, filename="latest.h5")
             self.nnet.save_checkpoint(
-                folder=self.args.checkpoint, filename=self.checkpoint_file_name(i))
+                folder=self.config.checkpoint, filename=self.checkpoint_file_name(i))
 
     def checkpoint_file_name(self, iteration):
         return 'checkpoint_' + str(iteration) + '.h5'
 
     def savetrain_examples(self, iteration):
-        folder = self.args.checkpoint
+        folder = self.config.checkpoint
         if not os.path.exists(folder):
             os.makedirs(folder)
         filename = self.checkpoint_file_name(
-            iteration) if self.args.save_all_examples else "latest.h5"
+            iteration) if self.config.save_all_examples else "latest.h5"
         filepath = os.path.join(folder, filename+".examples")
         with open(filepath, "wb+") as f:
             Pickler(f).dump(self.train_example_history)
@@ -154,7 +153,7 @@ class Coach():
 
     def loadtrain_examples(self):
         modelFile = os.path.join(
-            self.args.load_folder_file[0], self.args.load_folder_file[1])
+            self.config.load_folder_file[0], self.config.load_folder_file[1])
         examples_file = modelFile+".examples"
         if not os.path.isfile(examples_file):
             print(examples_file)
