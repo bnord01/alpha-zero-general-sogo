@@ -2,7 +2,7 @@ from Config import Config
  
 config = Config(
     num_iterations=1000,
-    num_episodes=10,
+    num_episodes=200,
     episode_queue_length=200000,
     save_all_examples=False,
     checkpoint='./temp/',
@@ -11,7 +11,7 @@ config = Config(
     load_folder_file=('./temp/', 'latest.h5'),
     iteration_history_length=20,
     num_sampling_moves=10,
-    num_mcts_sims=516,
+    num_mcts_sims=16*8,
     reuse_mcts_root=True,
 
     # Root prior exploration noise.
