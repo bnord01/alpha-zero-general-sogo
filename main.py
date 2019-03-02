@@ -7,7 +7,7 @@ config = Config(
     save_all_examples=False,
     checkpoint='./temp/',
     load_model=True,
-    load_examles=True,
+    load_examles=False,
     load_folder_file=('./temp/', 'latest.h5'),
     iteration_history_length=40,
     num_sampling_moves=10,
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     from sogo.keras.NNet import NNetWrapper as nn
 
     from sogo.keras.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.002, 
+    config.nnet_args = NNArgs(lr=0.001, 
                               batch_size=1024, 
                               epochs=15)
 
