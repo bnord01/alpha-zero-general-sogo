@@ -20,7 +20,9 @@ class Config(object):
 
                  # UCB formula
                  pb_c_base=None,
-                 pb_c_init=None
+                 pb_c_init=None,
+
+                 nnet_args=None
                  ):
         self.num_iterations = num_iterations
         self.num_episodes = num_episodes
@@ -43,3 +45,5 @@ class Config(object):
         # UCB formula
         self.pb_c_base = pb_c_base
         self.pb_c_init = pb_c_init
+
+        self.nnet_args = None

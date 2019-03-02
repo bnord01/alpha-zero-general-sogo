@@ -1,10 +1,12 @@
 import keras
-from sogo.keras.SogoNNet import SogoNNet as onnet
+from sogo.keras.SogoNNet import SogoNNet
 from NeuralNet import NeuralNet
 from utils import *
 import os
 import numpy as np
 import sys
+from Config import Config
+from Game import Game
 sys.path.append('..')
 
 
@@ -16,19 +18,23 @@ Author: Benedikt Nordhoff
 Based on the NNet by SourKream and Surag Nair.
 """
 
-args = dotdict({
-    'lr': 0.001,
-    'dropout': 0.3,
-    'epochs': 10,
-    'batch_size': 2*1024,
-    'cuda': False,
-    'num_channels': 512,
-})
+
+class NNArgs(object):
+    def __init__(self,
+                 lr=0.001,
+                 epochs=10,
+                 batch_size=1024):
+        self.lr = lr
+        self.epochs = epochs
+        self.batch_size = batch_size
 
 
 class NNetWrapper(NeuralNet):
-    def __init__(self, game):
-        self.nnet = onnet(game, args)
+    def __init__(self, game: Game, config: Config):
+        self.config = config
+        self.args = config.nnet_args if config and config.nnet_args else NNArgs()
+        self.nnet = SogoNNet(game, self.args)
+
         self.board_x, self.board_y, self.board_z = game.board_size()
         self.action_size = game.action_size()
 
@@ -43,8 +49,8 @@ class NNetWrapper(NeuralNet):
         tb_callback = keras.callbacks.TensorBoard(
             log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 
-        self.nnet.model.fit(x=input_boards, y=[target_pis, target_vs], 
-                            batch_size=args.batch_size, epochs=args.epochs, 
+        self.nnet.model.fit(x=input_boards, y=[target_pis, target_vs],
+                            batch_size=self.args.batch_size, epochs=self.args.epochs,
                             callbacks=[tb_callback])
 
     def predict(self, board):

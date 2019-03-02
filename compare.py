@@ -1,15 +1,16 @@
-SAVE1 = ('./save/', 'mixed3.h5')
-#SAVE2 = ('./temp/', 'checkpoint_5.h5')
-SAVE2 = ('./temp/', 'latest.h5')
+SAVE1 = ('./save/', 'mixed5.h5')
+SAVE2 = ('./save/', 'mixed5.h5')
+#SAVE2 = ('./temp/', 'latest.h5')
 
-MCTS_SIMS1 = 0
-MCTS_SIMS2 = MCTS_SIMS1
+MCTS_SIMS1 = 256
+MCTS_SIMS2 = 512
 
-GAMES = 200
+GAMES = 40
 
-
-SAMPLING1 = 8
+SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
+
+from Config import Config
 
 import numpy as np
 from sogo.keras.NNet import NNetWrapper as NNet
@@ -26,29 +27,21 @@ any agent.
 
 g = SogoGame(4)
 
-# nnet players
+
+config1 = Config(
+    num_sampling_moves=SAMPLING1,
+    num_mcts_sims=MCTS_SIMS1,
+    
+    # Root prior exploration noise.
+    root_dirichlet_alpha=0.3,
+    root_exploration_fraction=0.0,
+
+    # UCB formula
+    pb_c_base=19652,
+    pb_c_init=1.25)
 
 
-class Config(object):
-    def __init__(self):
-        self.num_sampling_moves = 30
-        self.max_moves = 512  # for chess and shogi, 722 for Go.
-        self.num_mcts_sims = None
-
-        # Root prior exploration noise.
-        # for chess, 0.03 for Go and 0.15 for shogi.
-        self.root_dirichlet_alpha = 0.3
-        self.root_exploration_fraction = 0.0
-
-        # UCB formula
-        self.pb_c_base = 19652
-        self.pb_c_init = 1.25
-
-
-config1 = Config()
-config1.num_mcts_sims = MCTS_SIMS1
-
-nn1 = NNet(g)
+nn1 = NNet(g, config1)
 nn1.load_checkpoint(*SAVE1)
 mcts1 = MCTS(g, nn1, config1)
 
@@ -72,10 +65,19 @@ def player1(board):
     return a
 
 
-config2 = Config()
-config2.num_mcts_sims = MCTS_SIMS2
+config2 = Config(
+    num_sampling_moves=SAMPLING2,
+    num_mcts_sims=MCTS_SIMS2,
+    
+    # Root prior exploration noise.
+    root_dirichlet_alpha=0.3,
+    root_exploration_fraction=0.0,
 
-nn2 = NNet(g)
+    # UCB formula
+    pb_c_base=19652,
+    pb_c_init=1.25)
+
+nn2 = NNet(g, config2)
 nn2.load_checkpoint(*SAVE2)
 mcts2 = MCTS(g, nn2, config2)
 

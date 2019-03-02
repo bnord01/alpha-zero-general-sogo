@@ -41,7 +41,7 @@ def conv2d_bn(x,
         padding=padding,
         use_bias=False,
         name=conv_name)(x)
-    x = BatchNormalization(scale=False, name=bn_name)(x)
+    x = BatchNormalization(scale=False, name=bn_name,)(x)
     x = Activation('relu', name=name)(x)
     return x
 

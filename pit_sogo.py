@@ -50,7 +50,7 @@ class NN(NeuralNet):
 config = Config()
 # nn = NN(g)
 
-nn = NNet(g)
+nn = NNet(g, config)
 nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 hp = HumanSogoPlayer(g)
