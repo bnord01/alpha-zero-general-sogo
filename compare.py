@@ -1,9 +1,9 @@
 SAVE1 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./save/', 'mixed5.h5')
-#SAVE2 = ('./temp/', 'latest.h5')
+#SAVE2 = ('./save/', 'mixed5.h5')
+SAVE2 = ('./temp/', 'latest.h5')
 
-MCTS_SIMS1 = 256
-MCTS_SIMS2 = 512
+MCTS_SIMS1 = 0
+MCTS_SIMS2 = 0
 
 GAMES = 40
 
