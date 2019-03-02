@@ -1,11 +1,11 @@
-SAVE1 = ('./save/', 'mixed2.h5')
+SAVE1 = ('./save/', 'mixed3.h5')
 #SAVE2 = ('./temp/', 'checkpoint_5.h5')
-SAVE2 = ('./save/', 'mixed.h5')
+SAVE2 = ('./temp/', 'latest.h5')
 
-MCTS_SIMS1 = 16*3
+MCTS_SIMS1 = 0
 MCTS_SIMS2 = MCTS_SIMS1
 
-GAMES = 10
+GAMES = 200
 
 
 SAMPLING1 = 8
@@ -52,9 +52,22 @@ nn1 = NNet(g)
 nn1.load_checkpoint(*SAVE1)
 mcts1 = MCTS(g, nn1, config1)
 
+def nnpred1(board):
+    pi, _ = nn1.predict(board)
+    valids = g.valid_actions(board,1)
+    pi = pi * valids
+    s = np.sum(pi)
+    if s > 0:
+        return pi / s
+    else:
+        print('NN1 no mass on valid actions!')
+        return np.ones((g.action_size(),))/g.action_size()
 
-def player1(board):
-    pi, root = mcts1.get_action_prob(board)
+def player1(board):    
+    if MCTS_SIMS1 > 0:
+        pi, _ = mcts1.get_action_prob(board) 
+    else:
+        pi = nnpred1(board)    
     a = np.argmax(pi) if np.sum(board) >= SAMPLING1 else np.random.choice(len(pi), p=pi)
     return a
 
@@ -66,20 +79,46 @@ nn2 = NNet(g)
 nn2.load_checkpoint(*SAVE2)
 mcts2 = MCTS(g, nn2, config2)
 
+def nnpred2(board):
+    pi, _ = nn2.predict(board)
+    valids = g.valid_actions(board,1)
+    pi = pi * valids
+    s = np.sum(pi)
+    if s > 0:
+        return pi / s
+    else:
+        print('NN2 no mass on valid actions!')
+        return np.ones((g.action_size(),))/g.action_size()
 
 def player2(board):
-    pi, root = mcts2.get_action_prob(board)
+    if MCTS_SIMS2 > 0:
+        pi, _ = mcts2.get_action_prob(board) 
+    else:
+        pi = nnpred2(board)
     a = np.argmax(pi) if np.sum(board) >= SAMPLING2 else np.random.choice(len(pi), p=pi)
     return a
 
 
 arena = Arena.Arena(player1, player2, g, display=display)
-one, two, draw = arena.play_games(GAMES, verbose=False)
+(one_first, one_second), (two_first, two_second), (draw_one_first, draw_two_first) = arena.play_games(GAMES, verbose=False)
 
-print(f"Result {one}:{two}, {draw} draws!")
+one = one_first + one_second
+two = two_first + two_second
+draw = draw_one_first + draw_two_first
+
+print()
+print(f"Result overall {one}:{two}, {draw} draws")
 if one > two:
     print("Player one (", *SAVE1, ") won!")
 elif two > one:
     print("Player two (", *SAVE2, ") won!")
 else:
     print("Draw!")
+
+print()
+print("Player one first (", *SAVE1,"):")
+print(f"Result {one_first}:{two_second}, {draw_one_first} draws")
+
+print()
+print("Player two first (", *SAVE2,"):")
+print(f"Result {two_first}:{one_second}, {draw_two_first} draws")

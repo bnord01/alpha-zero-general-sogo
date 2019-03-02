@@ -92,11 +92,18 @@ class Arena():
             eps += 1
             eps_time.update(time.time() - end)
             end = time.time()
-            bar.suffix  = f'({eps}/{maxeps}) | Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | Standig: {one_won}:{two_won} ({draws} draws)'
+            bar.suffix  = f'({eps}/{maxeps}) | Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | One first: {one_won}:{two_won} ({draws} draws)'
             bar.next()
 
         self.player1, self.player2 = self.player2, self.player1
-        
+        one_won_first = one_won
+        two_won_second = two_won
+        draws_one_first = draws
+
+        one_won = 0
+        two_won = 0
+        draws = 0
+
         for _ in range(num):
             game_result = self.play_game(verbose=verbose)
             if game_result==-1:
@@ -109,10 +116,10 @@ class Arena():
             eps += 1
             eps_time.update(time.time() - end)
             end = time.time()
-            bar.suffix  = f'({eps}/{maxeps}) Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | Standig: {one_won}:{two_won} ({draws} draws)'
+            bar.suffix  = f'({eps}/{maxeps}) Eps Time: {eps_time.avg:.3f}s | Total: {bar.elapsed_td:} | ETA: {bar.eta_td:} | One fist: {one_won_first}:{two_won_second} ({draws_one_first} draws) | Two first: {two_won}:{one_won} ({draws} draws)'
             bar.next()
             
         bar.finish()
         print(f"Arena game lengths,        min:{np.min(self.game_lengths):0.0f}, avg:{np.average(self.game_lengths):0.2f}, max:{np.max(self.game_lengths):0.0f}, std:{np.std(self.game_lengths):0.2f}")
-
-        return one_won, two_won, draws
+        
+        return (one_won_first, one_won), (two_won, two_won_second), (draws_one_first, draws)
