@@ -2,7 +2,7 @@ from Config import Config
 
 config = Config(
     num_iterations=1000,
-    num_episodes=100,
+    num_episodes=40,
     episode_queue_length=200000,
     save_all_examples=False,
     checkpoint='./temp/',
@@ -11,7 +11,7 @@ config = Config(
     load_folder_file=('./temp/', 'latest.h5'),
     iteration_history_length=40,
     num_sampling_moves=10,
-    num_mcts_sims=512,
+    num_mcts_sims=1024,
     reuse_mcts_root=True,
 
     # Root prior exploration noise.
@@ -29,9 +29,9 @@ if __name__ == "__main__":
     from sogo.keras.NNet import NNetWrapper as nn
 
     from sogo.keras.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.0001, 
+    config.nnet_args = NNArgs(lr=0.002, 
                               batch_size=1024, 
-                              epochs=20)
+                              epochs=15)
 
     g = Game(4)
     nnet = nn(g, config)
