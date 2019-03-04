@@ -98,7 +98,7 @@ class SogoNNet():
             shape=(self.board_x, self.board_y, self.board_z, 2))
         x = self.input_boards
 
-        filters1 = 64
+        filters1 = 128
 
         # Upsampling to 4 x 4 x 4 x filters1
         branch1 = conv3d_bn(x, filters1, 1, 1, 1, name='branch1')
@@ -141,10 +141,10 @@ class SogoNNet():
             branch_pool = layers.AveragePooling2D((3, 3),
                                                   strides=(1, 1),
                                                   padding='same')(x)
-            branch_pool = conv2d_bn(branch_pool, 64, 1, 1, , name=f'mix{i}_branch_pool')
+            branch_pool = conv2d_bn(branch_pool, 64, 1, 1, name=f'mix{i}_branch_pool')
             x = layers.concatenate(
                 [branch1x1, branch4x4, branch3x3dbl, branch_pool],
-                name='mixed{i}')
+                name=f'mixed{i}')
 
         x = Flatten()(x)
         y = Dense(2048, name='dense1_pi')(x)

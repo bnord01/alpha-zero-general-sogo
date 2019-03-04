@@ -31,7 +31,7 @@ if __name__ == "__main__":
     from sogo.keras.NNet import NNArgs
     config.nnet_args = NNArgs(lr=0.001, 
                               batch_size=1024, 
-                              epochs=15)
+                              epochs=20)
 
     g = Game(4)
     nnet = nn(g, config)
