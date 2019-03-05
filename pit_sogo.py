@@ -18,27 +18,19 @@ any agent.
 
 g = SogoGame(4)
 
-
+from Config import Config
+from sogo.keras.NNet import NNArgs
 # nnet players
-class Config(object):
-    def __init__(self):
-        self.num_mcts_sims = 16*3
-
-        # Root prior exploration noise.
-        # for chess, 0.03 for Go and 0.15 for shogi.
-        self.root_dirichlet_alpha = 0.3
-        self.root_exploration_fraction = 0.0
-
-        # UCB formula
-        self.pb_c_base = 19652
-        self.pb_c_init = 1.25
-
-        # Load model
-
-        self.load_model = True
-        self.load_folder_file = ('./save/', 'mixed3.h5')
-
-
+config = Config(
+    load_folder_file=('./save/', 'mixed3.h5'),
+    num_mcts_sims=200,
+    root_dirichlet_alpha=0.3,
+    root_exploration_fraction=0.0,
+    pb_c_base=19652,
+    pb_c_init=1.25)
+config.nnet_args = NNArgs(lr=0.001, 
+                              batch_size=1024, 
+                              epochs=20)
 class NN(NeuralNet):
     def __init__(self, game: Game):
         self.game = game
@@ -47,11 +39,10 @@ class NN(NeuralNet):
         return np.ones(self.game.action_size())/self.game.action_size(), 0
 
 
-config = Config()
 # nn = NN(g)
 
-nn = NNet(g, config)
-nn.load_checkpoint(*(config.load_folder_file))
+nn = NN(g)
+#nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 hp = HumanSogoPlayer(g)
 

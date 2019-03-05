@@ -8,29 +8,34 @@ import numpy as np
 g = SogoGame(4)
 
 # nnet players
-class Config(object):
-    def __init__(self):
-        self.num_mcts_sims = 16*3
+from Config import Config
+from sogo.keras.NNet import NNArgs
+# nnet players
+config = Config(
+    load_folder_file=('./save/', 'mixed3.h5'),
+    num_mcts_sims=200,
+    root_dirichlet_alpha=0.3,
+    root_exploration_fraction=0.0,
+    pb_c_base=19652,
+    pb_c_init=1.25)
+config.nnet_args = NNArgs(lr=0.001, 
+                              batch_size=1024, 
+                              epochs=20)
 
-        # Root prior exploration noise.
-        # for chess, 0.03 for Go and 0.15 for shogi.
-        self.root_dirichlet_alpha = 0.3
-        self.root_exploration_fraction = 0.0
+from NeuralNet import NeuralNet
+from Game import Game
+class NN(NeuralNet):
+    def __init__(self, game: Game):
+        self.game = game
 
-        # UCB formula
-        self.pb_c_base = 19652
-        self.pb_c_init = 1.25
-
-        # Load model
-
-        self.load_model = True
-        self.load_folder_file = ('./save/', 'mixed3.h5')
+    def predict(self, board):
+        return np.ones(self.game.action_size())/self.game.action_size(), 0
 
 
-config = Config()
+# nn = NNet(g,config)
 
-nn = NNet(g)
-nn.load_checkpoint(*(config.load_folder_file))
+nn = NN(g)
+# nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 
 def ai_player(board):
@@ -50,10 +55,10 @@ def on_move(s):
     print(s)
     i, j = s['i'], s['j']
     a = 4*i+j
-    play.apply(a)    
+    play.apply(a)
     a = ai_player(play.canonical_board())
     play.apply(a)
-    sio.emit({'i':a//4,'j':a%4,'n':np.sum(play.canonical_board[a//4,a%4])})
+    sio.emit({'i':a//4,'j':a%4,'n':np.sum(play.canonical_board()[a//4,a%4])})
    
 
 @sio.on('connect')
