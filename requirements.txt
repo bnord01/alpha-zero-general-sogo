@@ -1,0 +1,4 @@
+Keras
+python-socketio
+requests
+tensorflow
