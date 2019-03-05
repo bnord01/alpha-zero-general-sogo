@@ -15,7 +15,7 @@ from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
     load_folder_file=('./save/', 'mixed3.h5'),
-    num_mcts_sims=200,
+    num_mcts_sims=20,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
     pb_c_base=19652,
@@ -51,7 +51,10 @@ def on_move(s):
         play.apply(a)
         a = ai_player(play.canonical_board())
         play.apply(a)
-        sio.emit({'i':a//4,'j':a%4,'n':int(np.sum(play.canonical_board()[a//4,a%4]))})
+        a = int(a)
+        response = {'i':a//4,'j':a%4,'n':int(np.sum(play.canonical_board()[a//4,a%4]))}
+        print(response)
+        sio.emit('move', response)
    
 
 @sio.on('connect')
