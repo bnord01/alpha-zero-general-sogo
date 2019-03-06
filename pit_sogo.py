@@ -22,10 +22,11 @@ from Config import Config
 from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
-    load_folder_file=('./save/', 'mixed3.h5'),
-    num_mcts_sims=200,
+    load_folder_file=('./save/', 'mcts1024_eps40_iter17.h5'),
+    num_mcts_sims=150,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
+    mcts_discount=0.9,
     pb_c_base=19652,
     pb_c_init=1.25)
 config.nnet_args = NNArgs(lr=0.001, 
@@ -41,8 +42,8 @@ class NN(NeuralNet):
 
 # nn = NN(g)
 
-nn = NN(g)
-#nn.load_checkpoint(*(config.load_folder_file))
+nn = NNet(g,config)
+nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 hp = HumanSogoPlayer(g)
 
@@ -66,7 +67,7 @@ def ai_player(board):
     return a
 
 
-p1, p2 = ai_player, human_player
+p1, p2 = human_player, ai_player
 while True:
     arena = Arena.Arena(p1, p2, g, display=display)
     arena.play_games(2, verbose=True)

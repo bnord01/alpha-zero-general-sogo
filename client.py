@@ -14,8 +14,9 @@ from Config import Config
 from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
-    load_folder_file=('./save/', 'mixed3.h5'),
-    num_mcts_sims=50,
+    load_folder_file=('./save/', 'mcts1024_eps40_iter17.h5'),
+    num_mcts_sims=150,
+    mcts_discount=0.95,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
     pb_c_base=19652,
@@ -85,5 +86,5 @@ def on_reset(v=None):
 
 
     
-#sio.connect('http://playsogo.herokuapp.com')
-sio.connect('http://localhost:3003')
+sio.connect('http://playsogo.herokuapp.com')
+#sio.connect('http://localhost:3003')

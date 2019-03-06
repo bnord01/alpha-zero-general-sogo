@@ -147,9 +147,12 @@ class MCTS():
     # tree to the root.
 
     def backpropagate(self, search_path: List[Node], value: float, player_to_value):
+        search_path.reverse()
+        discount = 1.0
         for node in search_path:
-            node.value_sum += value * node.player * player_to_value
+            node.value_sum += value * node.player * player_to_value * discount            
             node.visit_count += 1
+            discount *= self.config.mcts_discount
 
     # At the start of each search, we add dirichlet noise to the prior of the root
     # to encourage the search to explore new actions.

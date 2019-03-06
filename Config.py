@@ -13,6 +13,7 @@ class Config(object):
                  num_sampling_moves=None,
                  num_mcts_sims=None,
                  reuse_mcts_root=None,
+                 mcts_discount=None,
 
                  # Root prior exploration noise.
                  root_dirichlet_alpha=None,
@@ -37,6 +38,7 @@ class Config(object):
         self.num_sampling_moves = num_sampling_moves
         self.num_mcts_sims = num_mcts_sims
         self.reuse_mcts_root = reuse_mcts_root
+        self.mcts_discount = mcts_discount
 
         # Root prior exploration noise.
         self.root_dirichlet_alpha = root_dirichlet_alpha
