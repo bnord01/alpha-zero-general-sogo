@@ -20,3 +20,4 @@ checkpoints/
 .idea/
 
 /env/
+/venv/

@@ -14,8 +14,8 @@ from Config import Config
 from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
-    load_folder_file=('./save/', 'mixed3.h5'),
-    num_mcts_sims=20,
+    load_folder_file=('./save/', 'larger_model_20epochs_on_mixed8ex.h5'),
+    num_mcts_sims=32,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
     pb_c_base=19652,
@@ -27,7 +27,7 @@ config.nnet_args = NNArgs(lr=0.001,
 
 nn = NNet(g,config)
 
-# nn.load_checkpoint(*(config.load_folder_file))
+nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 
 def ai_player(board):
@@ -41,21 +41,33 @@ sio = socketio.Client()
 
 play = Play(g, g.init_board())
 
+def check_win():
+    global play
+    
 
 @sio.on('move')
 def on_move(s):
+    global play
     with graph.as_default():
         print(s)
         i, j = s['i'], s['j']
-        a = 4*i+j
+        a = i+4*j
         play.apply(a)
-        a = ai_player(play.canonical_board())
-        play.apply(a)
-        a = int(a)
-        response = {'i':a//4,'j':a%4,'n':int(np.sum(play.canonical_board()[a//4,a%4]))}
-        print(response)
-        sio.emit('move', response)
-   
+        if play.terminal():
+            print('Game over, result:', play.terminal_value(), "for player", play.player)
+            play = Play(g, g.init_board())
+        else:            
+            a = ai_player(play.canonical_board())
+            play.apply(a)
+            i,j = int(a%4), int(a//4)
+            n = int(np.sum(play.canonical_board()[i,j])) - 1
+            response = {'i':i,'j':j,'n':n}
+            print(response)
+            sio.emit('move', response)
+            if play.terminal():
+                print('Game over, result:', play.terminal_value(), "for player", play.player)
+                play = Play(g, g.init_board())
+                
 
 @sio.on('connect')
 def on_connect():
