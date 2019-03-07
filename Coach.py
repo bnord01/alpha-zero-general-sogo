@@ -56,7 +56,7 @@ class Coach():
             canonical_board = self.game.canonical_board(board, player)
             sym = self.game.symmetries(canonical_board, pi)
             for brd, prb in sym:
-                train_examples.append([brd, player, prb])
+                train_examples.append([brd, player, prb, episode_step])
 
             action = np.argmax(pi) if episode_step > self.config.num_sampling_moves \
                 else np.random.choice(len(pi), p=pi)
@@ -66,7 +66,12 @@ class Coach():
 
             r = self.game.terminal_value(board, player)
             if r != 0:
-                return [(brd, prb, r if plyr == player else -r) for brd, plyr, prb in train_examples], episode_step
+                return [
+                    (brd,
+                     prb,
+                     (r if plyr == player else -r)*(self.config.train_discount ** (episode_step-stp)))
+                    for brd, plyr, prb, stp in train_examples
+                ], episode_step
 
     def learn(self):
         """

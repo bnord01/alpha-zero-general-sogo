@@ -9,6 +9,7 @@ class Config(object):
                  load_examles=None,
                  load_folder_file=None,
                  iteration_history_length=None,
+                 train_discount=None,
 
                  num_sampling_moves=None,
                  num_mcts_sims=None,
@@ -34,6 +35,7 @@ class Config(object):
         self.load_examles = load_examles
         self.load_folder_file = load_folder_file
         self.iteration_history_length = iteration_history_length
+        self.train_discount = train_discount
 
         self.num_sampling_moves = num_sampling_moves
         self.num_mcts_sims = num_mcts_sims

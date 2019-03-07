@@ -1,11 +1,11 @@
-SAVE1 = ('./save/', 'mixed5.h5')
+SAVE1 = ('./run_1024_sims/', 'checkpoint_9.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./temp/', 'latest.h5')
+SAVE2 = ('./run_1025_sims_fresh/', 'latest.h5')
 
 MCTS_SIMS1 = 0
 MCTS_SIMS2 = 0
 
-GAMES = 40
+GAMES = 100
 
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
@@ -35,6 +35,7 @@ config1 = Config(
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
+    mcts_discount=0.925,
 
     # UCB formula
     pb_c_base=19652,
@@ -72,6 +73,7 @@ config2 = Config(
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
+    mcts_discount=0.925,
 
     # UCB formula
     pb_c_base=19652,
