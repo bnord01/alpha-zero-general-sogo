@@ -1,14 +1,17 @@
 SAVE1 = ('./save/', 'mcts1024_eps40_iter17.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./run_1025_sims_fresh/', 'latest.h5')
+SAVE2 = ('./save/', 'mcts1024_eps40_iter17.h5')
 
-MCTS_SIMS1 = 0
-MCTS_SIMS2 = 0
+MCTS_SIMS1 = 512
+MCTS_SIMS2 = 512
 
-GAMES = 100
+GAMES = 40
 
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
+
+DISCOUNT1 = 0.925
+DISCOUNT2 = 1.0
 
 from Config import Config
 
@@ -35,7 +38,7 @@ config1 = Config(
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
-    mcts_discount=0.925,
+    mcts_discount=DISCOUNT1,
 
     # UCB formula
     pb_c_base=19652,
@@ -73,7 +76,7 @@ config2 = Config(
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
-    mcts_discount=0.925,
+    mcts_discount=DISCOUNT2,
 
     # UCB formula
     pb_c_base=19652,
