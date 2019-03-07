@@ -1,4 +1,4 @@
-SAVE1 = ('./run_1024_sims/', 'checkpoint_9.h5')
+SAVE1 = ('./save/', 'mcts1024_eps40_iter17.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
 SAVE2 = ('./run_1025_sims_fresh/', 'latest.h5')
 
