@@ -14,9 +14,9 @@ from Config import Config
 from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
-    load_folder_file=('./save/', 'mcts1024_eps40_iter17.h5'),
-    num_mcts_sims=150,
-    mcts_discount=0.95,
+    load_folder_file=('./discount925_fresh_eps40_mcts512/', 'latest.h5'),
+    num_mcts_sims=512,
+    mcts_discount=0.925,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
     pb_c_base=19652,
