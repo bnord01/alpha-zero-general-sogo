@@ -1,11 +1,11 @@
 SAVE1 = ('./save/', 'mcts1024_eps40_iter17.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./discount925_fresh_eps40_mcts512/', 'latest.h5')
+SAVE2 = ('./save/', 'discount925_fresh_eps40_mcts512_iter10.h5')
 
-MCTS_SIMS1 = 50
-MCTS_SIMS2 = 50
+MCTS_SIMS1 = 0
+MCTS_SIMS2 = 0
 
-GAMES = 40
+GAMES = 200
 
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1

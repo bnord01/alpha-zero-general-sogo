@@ -1,11 +1,15 @@
 import tensorflow as tf
-graph = tf.get_default_graph()
 
 from MCTS import MCTS, Play
 from sogo.SogoGame import SogoGame
 
 from sogo.keras.NNet import NNetWrapper as NNet
 import numpy as np
+
+MCTS_SIMS = 0
+FOLDER_FILE = ('./save/', 'discount925_fresh_eps40_mcts512_iter10.h5')
+
+graph = tf.get_default_graph()
 
 g = SogoGame(4)
 
@@ -14,8 +18,8 @@ from Config import Config
 from sogo.keras.NNet import NNArgs
 # nnet players
 config = Config(
-    load_folder_file=('./discount925_fresh_eps40_mcts512/', 'latest.h5'),
-    num_mcts_sims=512,
+    load_folder_file=FOLDER_FILE,
+    num_mcts_sims=MCTS_SIMS,
     mcts_discount=0.925,
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
@@ -31,8 +35,22 @@ nn = NNet(g,config)
 nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
 
+def nn_pred(board):
+    pi, _ = nn.predict(board)
+    valids = g.valid_actions(board,1)
+    pi = pi * valids
+    s = np.sum(pi)
+    if s > 0:
+        return pi / s
+    else:
+        print('NN1 no mass on valid actions!')
+        return np.ones((g.action_size(),))/g.action_size()
+
 def ai_player(board):
-    pi, _ = mcts1.get_action_prob(board)
+    if config.num_mcts_sims > 0:
+        pi, _ = mcts1.get_action_prob(board) 
+    else:
+        pi = nn_pred(board)    
     a = np.argmax(pi)
     return a
 
@@ -41,9 +59,6 @@ import socketio
 sio = socketio.Client()
 
 play = Play(g, g.init_board())
-
-def check_win():
-    global play
     
 
 @sio.on('move')
@@ -59,6 +74,12 @@ def on_move(s):
             value = int(play.terminal_value() * play.player)
             sio.emit('reset', value)        
             play = Play(g, g.init_board())
+            a = ai_player(play.canonical_board())
+            play.apply(a)
+            i,j = int(a%4), int(a//4)
+            response = {'i':i,'j':j}
+            print(response)
+            sio.emit('move', response)
 
         else:            
             a = ai_player(play.canonical_board())
@@ -70,8 +91,8 @@ def on_move(s):
             if play.terminal():
                 print('Game over, result:', play.terminal_value(), "for player",play.player)
                 value = int(play.terminal_value() * play.player)
-                sio.emit('reset', value)  
-                play = Play(g, g.init_board())
+                sio.emit('reset', value)
+                play = Play(g, g.init_board())                
                 
 
 @sio.on('connect')
