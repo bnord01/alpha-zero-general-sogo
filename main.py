@@ -2,16 +2,16 @@ from Config import Config
 
 config = Config(
     num_iterations=1000,
-    num_episodes=40,
+    num_episodes=10,
     episode_queue_length=200000,
     save_all_examples=False,
-    checkpoint='./discount925_iter10_eps40_mcts512/',
+    checkpoint='./discount925_iter17_eps40_mcts512/',
     load_model=True,
     load_examles=True,
-    load_folder_file=('./discount925_fresh_eps40_mcts512/', 'latest.h5'),
+    load_folder_file=('./discount925_iter10_eps40_mcts512/', 'latest.h5'),
     iteration_history_length=40,
     num_sampling_moves=10,
-    num_mcts_sims=512,
+    num_mcts_sims=1024,
     reuse_mcts_root=True,
     mcts_discount=0.925,
     train_discount=0.925,
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     from sogo.keras.NNet import NNArgs
     config.nnet_args = NNArgs(lr=0.001, 
                               batch_size=1024, 
-                              epochs=20)
+                              epochs=0)
 
     g = Game(4)
     nnet = nn(g, config)

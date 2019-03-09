@@ -128,19 +128,20 @@ class Coach():
             # NB! the examples were collected using the model from the previous iteration, so (i-1)
             self.savetrain_examples(i-1)
 
-            # shuffle examlpes before training
-            train_examples = []
-            for e in self.train_example_history:
-                train_examples.extend(e)
-            shuffle(train_examples)
+            if self.config.nnet_args.epochs > 0
+                # shuffle examlpes before training
+                train_examples = []
+                for e in self.train_example_history:
+                    train_examples.extend(e)
+                shuffle(train_examples)
 
-            # training new network
-            self.nnet.train(train_examples)
+                # training new network
+                self.nnet.train(train_examples)
 
-            self.nnet.save_checkpoint(
-                folder=self.config.checkpoint, filename="latest.h5")
-            self.nnet.save_checkpoint(
-                folder=self.config.checkpoint, filename=self.checkpoint_file_name(i))
+                self.nnet.save_checkpoint(
+                    folder=self.config.checkpoint, filename="latest.h5")
+                self.nnet.save_checkpoint(
+                    folder=self.config.checkpoint, filename=self.checkpoint_file_name(i))
 
     def checkpoint_file_name(self, iteration):
         return 'checkpoint_' + str(iteration) + '.h5'
