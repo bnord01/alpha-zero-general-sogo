@@ -5,16 +5,17 @@ config = Config(
     num_episodes=10,
     episode_queue_length=200000,
     save_all_examples=False,
-    checkpoint='./discount925_selfplay_17xmcts512_mcts1024/',
+    checkpoint='./discount950_fresh_mcts512/',
     load_model=True,
-    load_examles=True,
+    load_examles=False,
     load_folder_file=('./discount925_iter10_eps40_mcts512/', 'latest.h5'),
+    tensorboard_dir='./logs_disc950/',
     iteration_history_length=100,
     num_sampling_moves=10,
     num_mcts_sims=1024,
     reuse_mcts_root=True,
-    mcts_discount=0.925,
-    train_discount=0.925,
+    mcts_discount=0.95,
+    train_discount=0.95,
 
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
@@ -33,7 +34,7 @@ if __name__ == "__main__":
     from sogo.keras.NNet import NNArgs
     config.nnet_args = NNArgs(lr=0.001, 
                               batch_size=1024, 
-                              epochs=0)
+                              epochs=20)
 
     g = Game(4)
     nnet = nn(g, config)

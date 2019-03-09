@@ -47,7 +47,7 @@ class NNetWrapper(NeuralNet):
         target_pis = np.asarray(target_pis)
         target_vs = np.asarray(target_vs)
         tb_callback = keras.callbacks.TensorBoard(
-            log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+            log_dir=self.config.tensorboard_dir, histogram_freq=0, write_graph=True, write_images=True)
 
         self.nnet.model.fit(x=input_boards, y=[target_pis, target_vs],
                             batch_size=self.args.batch_size, epochs=self.args.epochs,
