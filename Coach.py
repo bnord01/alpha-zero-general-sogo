@@ -128,7 +128,7 @@ class Coach():
             # NB! the examples were collected using the model from the previous iteration, so (i-1)
             self.savetrain_examples(i-1)
 
-            if self.config.nnet_args.epochs > 0
+            if self.config.nnet_args.epochs > 0:
                 # shuffle examlpes before training
                 train_examples = []
                 for e in self.train_example_history:
