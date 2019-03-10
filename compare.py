@@ -1,16 +1,16 @@
-SAVE1 = ('./save/', 'mcts1024_eps40_iter17.h5')
+SAVE1 = ('./discount950_fresh_mcts512/', 'latest.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./save/', 'discount925_fresh_eps40_mcts512_iter10.h5')
+SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
 
-MCTS_SIMS1 = 0
-MCTS_SIMS2 = 0
+MCTS_SIMS1 = 128
+MCTS_SIMS2 = 128
 
-GAMES = 200
+GAMES = 50
 
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
 
-DISCOUNT1 = 1.0
+DISCOUNT1 = 0.95
 DISCOUNT2 = 0.925
 
 from Config import Config
