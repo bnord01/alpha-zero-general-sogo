@@ -2,14 +2,14 @@ from Config import Config
 
 config = Config(
     num_iterations=1000,
-    num_episodes=10,
+    num_episodes=5,
     episode_queue_length=200000,
     save_all_examples=False,
-    checkpoint='./discount950_fresh_mcts512/',
+    checkpoint='./large_discount925/',
     load_model=True,
-    load_examles=False,
-    load_folder_file=('./discount925_iter10_eps40_mcts512/', 'latest.h5'),
-    tensorboard_dir='./logs_disc950/',
+    load_examles=True,
+    load_folder_file=('./large_load/', 'latest.h5'),
+    tensorboard_dir='./logs_large/',
     iteration_history_length=100,
     num_sampling_moves=10,
     num_mcts_sims=512,
@@ -29,12 +29,12 @@ if __name__ == "__main__":
     from Coach import Coach
 
     from sogo.SogoGame import SogoGame as Game
-    from sogo.keras.NNet import NNetWrapper as nn
+    from sogo.keras.large.NNet import NNetWrapper as nn
 
-    from sogo.keras.NNet import NNArgs
+    from sogo.keras.large.NNet import NNArgs
     config.nnet_args = NNArgs(lr=0.001, 
                               batch_size=1024, 
-                              epochs=20)
+                              epochs=5)
 
     g = Game(4)
     nnet = nn(g, config)
