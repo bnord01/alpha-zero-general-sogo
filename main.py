@@ -14,8 +14,8 @@ config = Config(
     num_sampling_moves=10,
     num_mcts_sims=1024,
     reuse_mcts_root=True,
-    mcts_discount=0.95,
-    train_discount=0.95,
+    mcts_discount=0.925,
+    train_discount=0.925,
 
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
