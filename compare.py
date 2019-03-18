@@ -1,6 +1,6 @@
-SAVE1 = ('./discount950_fresh_mcts512/', 'latest.h5')
+SAVE1 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
+SAVE2 = ('./large_discount925/', 'latest.h5')
 
 MCTS_SIMS1 = 128
 MCTS_SIMS2 = 128
@@ -10,13 +10,15 @@ GAMES = 50
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
 
-DISCOUNT1 = 0.95
+DISCOUNT1 = 0.925
 DISCOUNT2 = 0.925
+
+from sogo.keras.NNet import NNetWrapper as NNet1
+from sogo.keras.large.NNet import NNetWrapper as NNet2
 
 from Config import Config
 
 import numpy as np
-from sogo.keras.NNet import NNetWrapper as NNet
 from sogo.SogoPlayers import HumanSogoPlayer
 from sogo.SogoGame import SogoGame, display
 from MCTS import MCTS
@@ -45,7 +47,7 @@ config1 = Config(
     pb_c_init=1.25)
 
 
-nn1 = NNet(g, config1)
+nn1 = NNet1(g, config1)
 nn1.load_checkpoint(*SAVE1)
 mcts1 = MCTS(g, nn1, config1)
 
@@ -82,7 +84,7 @@ config2 = Config(
     pb_c_base=19652,
     pb_c_init=1.25)
 
-nn2 = NNet(g, config2)
+nn2 = NNet2(g, config2)
 nn2.load_checkpoint(*SAVE2)
 mcts2 = MCTS(g, nn2, config2)
 
