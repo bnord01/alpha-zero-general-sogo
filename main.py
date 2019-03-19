@@ -2,7 +2,7 @@ from Config import Config
 
 config = Config(
     num_iterations=1000,
-    num_episodes=2,
+    num_episodes=10,
     episode_queue_length=200000,
     save_all_examples=False,
     checkpoint='./large_discount925/',
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     from sogo.keras.large.NNet import NNetWrapper as nn
 
     from sogo.keras.large.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.005, 
-                              batch_size=1024, 
-                              epochs=1)
+    config.nnet_args = NNArgs(lr=0.001,
+                              batch_size=1024,
+                              epochs=5)
 
     g = Game(4)
     nnet = nn(g, config)
