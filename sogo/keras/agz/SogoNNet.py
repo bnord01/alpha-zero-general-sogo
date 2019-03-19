@@ -89,17 +89,20 @@ def conv3d_bn(x,
         x = Activation('relu', name=name)(x)
     return x
 
+
 def res_block_2d(x, filters=256, name=None):
-    y = conv2d_bn(x,filters, 3, 3, name=name, with_activation=False)    
-    y = Add()([x,y])
+    y = conv2d_bn(x, filters, 3, 3, name=name, with_activation=False)
+    y = Add()([x, y])
     y = Activation('relu', name=name)(y)
     return y
 
+
 def res_block_3d(x, filters=256, name=None):
-    y = conv3d_bn(x,filters, 3, 3, 3, name=name, with_activation=False)    
-    y = Add()([x,y])
+    y = conv3d_bn(x, filters, 3, 3, 3, name=name, with_activation=False)
+    y = Add()([x, y])
     y = Activation('relu', name=name)(y)
     return y
+
 
 class SogoNNet():
 
@@ -116,7 +119,7 @@ class SogoNNet():
         # args
         filters3d = 128
         num3d = 5
-        filters2d = 256        
+        filters2d = 256
         num2d = 15
         v_filts = 256
 
@@ -132,20 +135,20 @@ class SogoNNet():
 
         # upsampling to 4 x 4 x filters2d
         x = conv2d_bn(x, filters2d, 3, 3, name='in2d')
-        
+
         # res blocks 2d
         for i in range(num2d):
             x = res_block_2d(x, filters2d, name=f'res2d{i}')
-        
+
         # pi head
         y = conv2d_bn(x, 2, 1, 1, name='pi_conv')
         y = Flatten()(y)
-        
+
         # v head
         z = conv2d_bn(x, 1, 1, 1, name='v_conv')
         z = Flatten()(z)
-        z = Dense(v_filts, name='dense_v')(x)        
-        z = Activation('relu')(z)        
+        z = Dense(v_filts, name='dense_v')(z)
+        z = Activation('relu')(z)
 
         self.pi = Dense(self.action_size, name='pi')(y)
         self.v = Dense(1, activation='tanh', name='v')(z)
