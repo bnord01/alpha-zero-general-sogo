@@ -163,9 +163,9 @@ class SogoNNet():
         z = BatchNormalization()(z)
         z = Activation('relu')(z)
 
-        self.pi = Dense(self.action_size, activation='softmax', name='pi')(y)
+        self.pi = Dense(self.action_size, name='pi')(y)
         self.v = Dense(1, activation='tanh', name='v')(z)
 
         self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
         self.model.compile(
-            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=SGD(args.lr))
+            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))

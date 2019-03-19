@@ -5,7 +5,7 @@ config = Config(
     num_episodes=10,
     episode_queue_length=200000,
     save_all_examples=False,
-    checkpoint='./large_discount925/',
+    checkpoint='./large_discount925_noact/',
     load_model=True,
     load_examles=True,
     load_folder_file=('./large_discount925/', 'latest.h5'),
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     from sogo.keras.large.NNet import NNetWrapper as nn
 
     from sogo.keras.large.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.001,
+    config.nnet_args = NNArgs(lr=0.002,
                               batch_size=1024,
                               epochs=5)
 
