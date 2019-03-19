@@ -5,8 +5,8 @@ config = Config(
     num_episodes=10,
     episode_queue_length=200000,
     save_all_examples=False,
-    checkpoint='./large_discount925_noact/',
-    load_model=True,
+    checkpoint='./agz/',
+    load_model=False,
     load_examles=True,
     load_folder_file=('./large_discount925/', 'latest.h5'),
     tensorboard_dir='./logs_large/',
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     from sogo.keras.large.NNet import NNetWrapper as nn
 
     from sogo.keras.large.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.002,
+    config.nnet_args = NNArgs(lr=0.05,
                               batch_size=1024,
-                              epochs=5)
+                              epochs=10)
 
     g = Game(4)
     nnet = nn(g, config)
