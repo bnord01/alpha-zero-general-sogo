@@ -55,7 +55,8 @@ def conv3d_bn(x,
               num_lvl,
               padding='same',
               strides=(1, 1, 1),
-              name=None):
+              name=None,
+              with_activation=True):
     """Utility function to apply conv + BN.
     # Arguments
         x: input tensor.
@@ -84,26 +85,19 @@ def conv3d_bn(x,
         use_bias=False,
         name=conv_name)(x)
     x = BatchNormalization(scale=False, name=bn_name)(x)
-    x = Activation('relu', name=name)(x)
+    if with_activation:
+        x = Activation('relu', name=name)(x)
     return x
 
 def res_block_2d(x, filters=256, name=None):
-    if name is not None:
-        add_name = name + '_add'
-    else:
-        add_name = None
     y = conv2d_bn(x,filters, 3, 3, name=name, with_activation=False)    
-    y = Add([x,y],name=add_name)
+    y = Add()([x,y])
     y = Activation('relu', name=name)(y)
     return y
 
 def res_block_3d(x, filters=256, name=None):
-    if name is not None:
-        add_name = name + '_add'
-    else:
-        add_name = None
     y = conv3d_bn(x,filters, 3, 3, 3, name=name, with_activation=False)    
-    y = Add([x,y],name=add_name)
+    y = Add()([x,y])
     y = Activation('relu', name=name)(y)
     return y
 
