@@ -29,9 +29,9 @@ if __name__ == "__main__":
     from Coach import Coach
 
     from sogo.SogoGame import SogoGame as Game
-    from sogo.keras.large.NNet import NNetWrapper as nn
+    from sogo.keras.agz.NNet import NNetWrapper as nn
 
-    from sogo.keras.large.NNet import NNArgs
+    from sogo.keras.agz.NNet import NNArgs
     config.nnet_args = NNArgs(lr=0.05,
                               batch_size=1024,
                               epochs=10)

@@ -115,9 +115,9 @@ class SogoNNet():
 
         # args
         filters3d = 128
-        num3d = 10
-        filters2d = 256
-        num2d = 20
+        num3d = 5
+        filters2d = 256        
+        num2d = 15
         v_filts = 256
 
         # Upsampling to 4 x 4 x 4 x filters3d
@@ -134,8 +134,8 @@ class SogoNNet():
         x = conv2d_bn(x, filters2d, 3, 3, name='in2d')
         
         # res blocks 2d
-        for i in range(num3d):
-            x = res_block_3d(x, filters3d, name=f'res2d{i}')
+        for i in range(num2d):
+            x = res_block_2d(x, filters2d, name=f'res2d{i}')
         
         # pi head
         y = conv2d_bn(x, 2, 1, 1, name='pi_conv')
