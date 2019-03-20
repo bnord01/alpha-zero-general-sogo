@@ -32,8 +32,8 @@ if __name__ == "__main__":
     from sogo.keras.agz.NNet import NNetWrapper as nn
 
     from sogo.keras.agz.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.05,
-                              batch_size=1024,
+    config.nnet_args = NNArgs(lr=0.001,
+                              batch_size=2048,
                               epochs=10)
 
     g = Game(4)

@@ -117,9 +117,9 @@ class SogoNNet():
         x = self.input_boards
 
         # args
-        filters3d = 16
+        filters3d = 32
         num3d = 5
-        filters2d = 56
+        filters2d = 128
         num2d = 10
         v_filts = 128
 
