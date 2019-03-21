@@ -150,7 +150,7 @@ class SogoNNet():
         z = Dense(v_filts, name='dense_v')(z)
         z = Activation('relu')(z)
 
-        self.pi = Dense(self.action_size, name='pi')(y)
+        self.pi = Dense(self.action_size, activation='softmax', name='pi')(y)
         self.v = Dense(1, activation='tanh', name='v')(z)
 
         self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
