@@ -120,7 +120,7 @@ class Coach():
                 # save the iteration examples to the history
                 self.train_example_history.append(iteration_train_examples)
 
-            if len(self.train_example_history) > self.config.iteration_history_length:
+            while len(self.train_example_history) > self.config.iteration_history_length:
                 print("len(train_example_history) =", len(
                     self.train_example_history), " => remove the oldest train_examples")
                 self.train_example_history.pop(0)
