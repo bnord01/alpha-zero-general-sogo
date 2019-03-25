@@ -151,7 +151,7 @@ class Coach():
         if not os.path.exists(folder):
             os.makedirs(folder)
         filename = self.checkpoint_file_name(
-            iteration) if self.config.save_all_examples else "latest.h5"
+            iteration) if (self.config.save_all_examples or iteration % self.config.iteration_history_length == 0) else "latest.h5"
         filepath = os.path.join(folder, filename+".examples")
         with open(filepath, "wb+") as f:
             Pickler(f).dump(self.train_example_history)
