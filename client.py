@@ -3,11 +3,11 @@ import tensorflow as tf
 from MCTS import MCTS, Play
 from sogo.SogoGame import SogoGame
 
-from sogo.keras.NNet import NNetWrapper as NNet
+from sogo.keras.agz.NNet import NNetWrapper as NNet
 import numpy as np
 
 MCTS_SIMS = 0
-FOLDER_FILE = ('./save/', 'discount925_fresh_eps40_mcts512_iter10.h5')
+FOLDER_FILE = ('./agz/', 'latest.h5')
 
 graph = tf.get_default_graph()
 
@@ -15,7 +15,7 @@ g = SogoGame(4)
 
 # nnet players
 from Config import Config
-from sogo.keras.NNet import NNArgs
+from sogo.keras.agz.NNet import NNArgs
 # nnet players
 config = Config(
     load_folder_file=FOLDER_FILE,

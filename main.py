@@ -6,16 +6,16 @@ config = Config(
     episode_queue_length=200000,
     save_all_examples=False,
     checkpoint='./agz/',
-    load_model=False,
+    load_model=True,
     load_examles=True,
     load_folder_file=('./agz/', 'latest.h5'),
     tensorboard_dir='./logs_agz/',
-    iteration_history_length=100,
+    iteration_history_length=30,
     num_sampling_moves=10,
-    num_mcts_sims=128,
+    num_mcts_sims=1024,
     reuse_mcts_root=True,
-    mcts_discount=1.0,
-    train_discount=1.0,
+    mcts_discount=0.925,
+    train_discount=0.925,
 
     # Root prior exploration noise.
     root_dirichlet_alpha=0.3,
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     from sogo.keras.agz.NNet import NNetWrapper as nn
 
     from sogo.keras.agz.NNet import NNArgs
-    config.nnet_args = NNArgs(lr=0.001,
+    config.nnet_args = NNArgs(lr=0.0002,
                               batch_size=2048,
-                              epochs=10)
+                              epochs=3)
 
     g = Game(4)
     nnet = nn(g, config)
