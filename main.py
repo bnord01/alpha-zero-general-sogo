@@ -1,6 +1,7 @@
 from Config import Config
 
 config = Config(
+    start_iteration=1,
     num_iterations=1000,
     num_episodes=1,
     episode_queue_length=200000,

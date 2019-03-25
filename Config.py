@@ -1,5 +1,6 @@
 class Config(object):
     def __init__(self,
+                 start_iteration=1,
                  num_iterations=None,
                  num_episodes=None,
                  episode_queue_length=None,
@@ -27,6 +28,7 @@ class Config(object):
 
                  nnet_args=None
                  ):
+        self.start_iteration = start_iteration
         self.num_iterations = num_iterations
         self.num_episodes = num_episodes
         self.episode_queue_length = episode_queue_length
