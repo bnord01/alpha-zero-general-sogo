@@ -1,11 +1,12 @@
 SAVE1 = ('./agz/', 'latest.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
+SAVE2 = ('./agz/', 'checkpoint_37.h5')
+#SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
 
 MCTS_SIMS1 = 0
 MCTS_SIMS2 = 0
 
-GAMES = 100
+GAMES = 200
 
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
@@ -14,7 +15,7 @@ DISCOUNT1 = 0.925
 DISCOUNT2 = 0.925
 
 from sogo.keras.agz.NNet import NNetWrapper as NNet1
-from sogo.keras.NNet import NNetWrapper as NNet2
+from sogo.keras.agz.NNet import NNetWrapper as NNet2
 
 from Config import Config
 

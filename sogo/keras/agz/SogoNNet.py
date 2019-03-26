@@ -117,11 +117,11 @@ class SogoNNet():
         x = self.input_boards
 
         # args
-        filters3d = 32
-        num3d = 5
-        filters2d = 128
-        num2d = 10
-        v_filts = 128
+        filters3d = 64
+        num3d = 10
+        filters2d = 256
+        num2d = 20
+        v_filts = 256
 
         # Upsampling to 4 x 4 x 4 x filters3d
         x = conv3d_bn(x, filters3d, 3, 3, 3, name='in3d')
