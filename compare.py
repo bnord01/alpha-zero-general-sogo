@@ -1,6 +1,7 @@
 SAVE1 = ('./agz/', 'latest.h5')
 #SAVE2 = ('./save/', 'mixed5.h5')
-SAVE2 = ('./agz/', 'checkpoint_37.h5')
+#SAVE2 = ('./agz/', 'latest.h5')
+SAVE2 = ('./agz/', 'checkpoint_22.h5')
 #SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
 
 MCTS_SIMS1 = 0

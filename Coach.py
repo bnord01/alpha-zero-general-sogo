@@ -140,8 +140,9 @@ class Coach():
 
                 self.nnet.save_checkpoint(
                     folder=self.config.checkpoint, filename="latest.h5")
-                self.nnet.save_checkpoint(
-                    folder=self.config.checkpoint, filename=self.checkpoint_file_name(i))
+                if i % 5 == 0:
+                    self.nnet.save_checkpoint(
+                        folder=self.config.checkpoint, filename=self.checkpoint_file_name(i))
 
     def checkpoint_file_name(self, iteration):
         return 'checkpoint_' + str(iteration) + '.h5'
