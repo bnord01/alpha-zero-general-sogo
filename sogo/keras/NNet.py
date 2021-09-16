@@ -1,11 +1,12 @@
 import os
+from sogo.SogoGame import SogoGame
 import numpy as np
 import sys
 sys.path.append('..')
 from utils import *
 from NeuralNet import NeuralNet
 
-from sogo.keras.SogoNNet import SogoNNet as onnet
+from sogo.keras.SogoNNetSmallv2 import SogoNNet as onnet
 
 """
 NeuralNet wrapper class for the SogoNNet.
@@ -18,14 +19,14 @@ Based on the NNet by SourKream and Surag Nair.
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
-    'epochs': 10,
+    'epochs': 20,
     'batch_size': 1024,
     'cuda': False,
     'num_channels': 512,
 })
 
 class NNetWrapper(NeuralNet):
-    def __init__(self, game):
+    def __init__(self, game:SogoGame):
         self.nnet = onnet(game, args)
         self.board_x, self.board_y, self.board_z = game.getBoardSize()
         self.action_size = game.getActionSize()
@@ -52,7 +53,5 @@ class NNetWrapper(NeuralNet):
         self.nnet.model.save_weights(filepath)
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
-        filepath = os.path.join(folder, filename)
-        if not os.path.exists(filepath):
-            raise("No model in path '{}'".format(filepath))
+        filepath = os.path.join(folder, filename)        
         self.nnet.model.load_weights(filepath)

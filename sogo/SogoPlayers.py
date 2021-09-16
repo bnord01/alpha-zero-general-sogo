@@ -24,7 +24,7 @@ class HumanSogoPlayer():
     def __init__(self, game):
         self.game = game
 
-    def play(self, board):
+    def play(self, board,last_action=-1):
         # display(board)
         valid = self.game.getValidMoves(board, 1)
         for i in range(len(valid)):
@@ -42,5 +42,5 @@ class HumanSogoPlayer():
                 break
             else:
                 print('Invalid')
-
         return a
+

@@ -8,6 +8,7 @@ from tensorflow.python.keras.layers import Layer
 
 import tensorflow as tf
 
+
 ANTIDIAG12 = np.array([[[[1 if i + j == 3 else 0 for k in range(0, 4)]
                          for j in range(0, 4)]for i in range(0, 4)]], dtype=np.int32)
 
@@ -50,7 +51,7 @@ def greater3(x):
 def diaggreater3_on_axis(x, i, j, k):
     assert j < k
     # x = tf.Print(x, [x], summarize=64, message='initial x:          ')
-    diag = tf.diag(np.array([1, 1, 1, 1], dtype=np.int32))
+    diag = tf.linalg.diag(np.array([1, 1, 1, 1], dtype=np.int32))
     # x = tf.Print(x, [diag], summarize=64, message='diagnonal:          ')
     diag = K.stack([diag, diag, diag, diag], axis=i)
     # x = tf.Print(x, [diag], summarize=64, message='diagnonal:          ')
@@ -122,4 +123,4 @@ MODEL = Model(INPUTS, Lambda(is_winning)(INPUTS))
 
 
 def evaluate(state: np.ndarray) -> np.ndarray:
-    return MODEL.predict(state)[0]
+    return MODEL.predict(state) #[0]
