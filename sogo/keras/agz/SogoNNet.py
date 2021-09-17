@@ -155,4 +155,4 @@ class SogoNNet():
 
         self.model = Model(inputs=self.input_boards, outputs=[self.pi, self.v])
         self.model.compile(
-            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=Adam(args.lr))
+            loss=['categorical_crossentropy', 'mean_squared_error'], optimizer=adam_v2.Adam(args.lr))

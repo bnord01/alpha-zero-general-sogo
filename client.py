@@ -3,13 +3,18 @@ import tensorflow as tf
 from MCTS import MCTS, Play
 from sogo.SogoGame import SogoGame
 
-from sogo.keras.agz.NNet import NNetWrapper as NNet
+
 import numpy as np
 
-MCTS_SIMS = 0
-FOLDER_FILE = ('./agz/', 'latest.h5')
+MCTS_SIMS = 10
 
-graph = tf.get_default_graph()
+from sogo.keras.agz.NNet import NNetWrapper as NNet
+FOLDER_FILE = ('./agz/', 'agz_large.h5')
+
+
+#FOLDER_FILE = ('./agz/', 'latest.h5')
+
+#graph = tf.compat.v1.get_default_graph()
 
 g = SogoGame(4)
 
@@ -64,35 +69,35 @@ play = Play(g, g.init_board())
 @sio.on('move')
 def on_move(s):
     global play
-    with graph.as_default():
-        print(s)
-        i, j = s['i'], s['j']
-        a = i+4*j
+    #with graph.as_default():
+    print(s)
+    i, j = s['i'], s['j']
+    a = i+4*j
+    play.apply(a)
+    if play.terminal():
+        print('Game over, result:', play.terminal_value(), "for player", play.player)
+        value = int(play.terminal_value() * play.player)
+        sio.emit('reset', value)        
+        play = Play(g, g.init_board())
+        a = ai_player(play.canonical_board())
         play.apply(a)
-        if play.terminal():
-            print('Game over, result:', play.terminal_value(), "for player", play.player)
-            value = int(play.terminal_value() * play.player)
-            sio.emit('reset', value)        
-            play = Play(g, g.init_board())
-            a = ai_player(play.canonical_board())
-            play.apply(a)
-            i,j = int(a%4), int(a//4)
-            response = {'i':i,'j':j}
-            print(response)
-            sio.emit('move', response)
+        i,j = int(a%4), int(a//4)
+        response = {'i':i,'j':j}
+        print(response)
+        sio.emit('move', response)
 
-        else:            
-            a = ai_player(play.canonical_board())
-            play.apply(a)
-            i,j = int(a%4), int(a//4)
-            response = {'i':i,'j':j}
-            print(response)
-            sio.emit('move', response)
-            if play.terminal():
-                print('Game over, result:', play.terminal_value(), "for player",play.player)
-                value = int(play.terminal_value() * play.player)
-                sio.emit('reset', value)
-                play = Play(g, g.init_board())                
+    else:            
+        a = ai_player(play.canonical_board())
+        play.apply(a)
+        i,j = int(a%4), int(a//4)
+        response = {'i':i,'j':j}
+        print(response)
+        sio.emit('move', response)
+        if play.terminal():
+            print('Game over, result:', play.terminal_value(), "for player",play.player)
+            value = int(play.terminal_value() * play.player)
+            sio.emit('reset', value)
+            play = Play(g, g.init_board())                
                 
 
 @sio.on('connect')

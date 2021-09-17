@@ -1,4 +1,3 @@
-Keras
-python-socketio
+python-socketio==4.6.1
 requests
 tensorflow
