@@ -1,27 +1,28 @@
-import tensorflow as tf
-
+import numpy as np
 from MCTS import MCTS, Play
 from sogo.SogoGame import SogoGame
+from Config import Config
+from sogo.keras.NNet import NNArgs
+from sogo.keras.NNet import NNetWrapper
+from sogo.keras.LargeNetBuilder import LargeNetBuilder
+from sogo.keras.SmallNetBuilder import SmallNetBuilder
+from sogo.keras.AGZLargeNetBuilder import AGZLargeNetBuilder
+from sogo.keras.AGZSmallNetBuilder import AGZSmallNetBuilder
+from sogo.keras.SimpleNetBuilder import SimpleNetBuilder
 
-
-import numpy as np
 
 MCTS_SIMS = 10
 
-from sogo.keras.agz.NNet import NNetWrapper as NNet
-FOLDER_FILE = ('./agz/', 'agz_large.h5')
+FOLDER_FILE = ('./pretrained_models/sogo/agz_large/', 'best.h5')
+BUILDER = AGZLargeNetBuilder
 
 
-#FOLDER_FILE = ('./agz/', 'latest.h5')
-
-#graph = tf.compat.v1.get_default_graph()
+#############################
+#### Setup the AI Player ####
+#############################
 
 g = SogoGame(4)
 
-# nnet players
-from Config import Config
-from sogo.keras.agz.NNet import NNArgs
-# nnet players
 config = Config(
     load_folder_file=FOLDER_FILE,
     num_mcts_sims=MCTS_SIMS,
@@ -29,13 +30,15 @@ config = Config(
     root_dirichlet_alpha=0.3,
     root_exploration_fraction=0.0,
     pb_c_base=19652,
-    pb_c_init=1.25)
-config.nnet_args = NNArgs(lr=0.001, 
-                              batch_size=1024, 
-                              epochs=20)
+    pb_c_init=1.25,
+    nnet_args = NNArgs(builder=BUILDER,
+                       lr=0.001, 
+                       batch_size=1024, 
+                       epochs=20))
+                            
 
 
-nn = NNet(g,config)
+nn = NNetWrapper(g,config)
 
 nn.load_checkpoint(*(config.load_folder_file))
 mcts1 = MCTS(g, nn, config)
@@ -59,6 +62,10 @@ def ai_player(board):
     a = np.argmax(pi)
     return a
 
+###########################
+#### Define the client ####
+###########################
+
 import socketio
 
 sio = socketio.Client()
@@ -69,7 +76,6 @@ play = Play(g, g.init_board())
 @sio.on('move')
 def on_move(s):
     global play
-    #with graph.as_default():
     print(s)
     i, j = s['i'], s['j']
     a = i+4*j

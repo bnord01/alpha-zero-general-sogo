@@ -135,7 +135,7 @@ class MCTS():
         pi, value = self.nnet.predict(play.canonical_board())
 
         # Expand the node.
-        legal = play.legal_actions()
+        legal = play.legal_actions()        
         pi = pi*legal
         pi = pi / sum(pi)
         for action in range(len(pi)):

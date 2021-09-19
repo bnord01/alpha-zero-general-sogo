@@ -1,39 +1,49 @@
-SAVE1 = ('./agz/', 'latest.h5')
-#SAVE2 = ('./save/', 'mixed5.h5')
-#SAVE2 = ('./agz/', 'latest.h5')
-SAVE2 = ('./agz/', 'checkpoint_22.h5')
-#SAVE2 = ('./discount925_iter10_eps40_mcts512/', 'latest.h5')
+from sogo.keras.LargeNetBuilder import LargeNetBuilder
+from sogo.keras.SmallNetBuilder import SmallNetBuilder
+from sogo.keras.AGZLargeNetBuilder import AGZLargeNetBuilder
+from sogo.keras.AGZSmallNetBuilder import AGZSmallNetBuilder
+from sogo.keras.SimpleNetBuilder import SimpleNetBuilder
 
+# Define the models
+
+BUILDER1 = AGZLargeNetBuilder
+SAVE1 = ('./pretrained_models/sogo/agz_large/', 'best.h5')
+
+BUILDER2 = AGZSmallNetBuilder
+SAVE2 = ('./pretrained_models/sogo/agz_small/', 'best.h5')
+
+# Number of Games to play
+GAMES = 30
+
+# Number of playouts in the Monte Carlo Tree Search
 MCTS_SIMS1 = 0
-MCTS_SIMS2 = 0
+MCTS_SIMS2 = MCTS_SIMS1
 
-GAMES = 200
-
+# Number of plays to sample according to the provided distribution before always choosing the best.
 SAMPLING1 = 10
 SAMPLING2 = SAMPLING1
 
+# Discount factor for the MCTS
 DISCOUNT1 = 0.925
-DISCOUNT2 = 0.925
+DISCOUNT2 = DISCOUNT1
 
-from sogo.keras.agz.NNet import NNetWrapper as NNet1
-from sogo.keras.agz.NNet import NNetWrapper as NNet2
+###########################
+#### Setup the players ####
+###########################
 
 from Config import Config
-
+from sogo.keras.NNet import NNetWrapper
+from sogo.keras.NNet import NNArgs    
 import numpy as np
-from sogo.SogoPlayers import HumanSogoPlayer
 from sogo.SogoGame import SogoGame, display
 from MCTS import MCTS
 import Arena
 
-
-"""
-use this script to play any two agents against each other, or play manually with
-any agent.
-"""
-
 g = SogoGame(4)
 
+####################
+#### Player one ####
+####################
 
 config1 = Config(
     num_sampling_moves=SAMPLING1,
@@ -48,8 +58,14 @@ config1 = Config(
     pb_c_base=19652,
     pb_c_init=1.25)
 
+config1.nnet_args = NNArgs(builder = BUILDER1,
+                              lr=0.02,
+                              batch_size=2048,
+                              epochs=20)
 
-nn1 = NNet1(g, config1)
+
+nn1 = NNetWrapper(g, config1)
+
 nn1.load_checkpoint(*SAVE1)
 mcts1 = MCTS(g, nn1, config1)
 
@@ -72,6 +88,9 @@ def player1(board):
     a = np.argmax(pi) if np.sum(board) >= SAMPLING1 else np.random.choice(len(pi), p=pi)
     return a
 
+####################
+#### Player two ####
+####################
 
 config2 = Config(
     num_sampling_moves=SAMPLING2,
@@ -86,7 +105,14 @@ config2 = Config(
     pb_c_base=19652,
     pb_c_init=1.25)
 
-nn2 = NNet2(g, config2)
+config2.nnet_args = NNArgs(builder = BUILDER2,
+                              lr=0.02,
+                              batch_size=2048,
+                              epochs=20)
+
+
+nn2 = NNetWrapper(g, config2)
+
 nn2.load_checkpoint(*SAVE2)
 mcts2 = MCTS(g, nn2, config2)
 
@@ -109,6 +135,9 @@ def player2(board):
     a = np.argmax(pi) if np.sum(board) >= SAMPLING2 else np.random.choice(len(pi), p=pi)
     return a
 
+#############################
+#### Compare the players ####
+#############################
 
 arena = Arena.Arena(player1, player2, g, display=display)
 (one_first, one_second), (two_first, two_second), (draw_one_first, draw_two_first) = arena.play_games(GAMES, verbose=False)

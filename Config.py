@@ -11,7 +11,7 @@ class Config(object):
                  load_folder_file=None,
                  iteration_history_length=None,
                  train_discount=None,
-                 tensorboard_dir = None,
+                 tensorboard_dir = None,                 
 
                  num_sampling_moves=None,
                  num_mcts_sims=None,
@@ -54,4 +54,4 @@ class Config(object):
         self.pb_c_base = pb_c_base
         self.pb_c_init = pb_c_init
 
-        self.nnet_args = None
+        self.nnet_args = nnet_args
